@@ -56,6 +56,10 @@ public final class Constants {
     public static final int WINCH = 0;
     public static final int CLIMB_MOTOR = 10;
 
+    public static final double RADIUS = 7.56;
+
+    public static final double CIRCUMFERENCE = Math.PI * 2.0 * RADIUS;
+
     //DOUBLE SOLENOIDS
     public static final int INTAKE_FORWARD = 4;
     public static final int INTAKE_REVERSE = 5;
@@ -101,7 +105,7 @@ public final class Constants {
     public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
 
-    public static final double kRamseteB = 2;
+    public static final double kRamseteB = 2; // dont change this and the val below
     public static final double kRamseteZeta = 0.7;
 
 
