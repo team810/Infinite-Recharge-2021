@@ -42,6 +42,11 @@ public class Drivetrain extends SubsystemBase {
     drive.setSafetyEnabled(false);
     back_L.follow(front_L);
     back_R.follow(front_R);
+
+    front_L.setMotorType(MotorType.kBrushless);
+    front_R.setMotorType(MotorType.kBrushless);
+    back_L.setMotorType(MotorType.kBrushless);
+    back_R.setMotorType(MotorType.kBrushless);
   }
 
   @Override

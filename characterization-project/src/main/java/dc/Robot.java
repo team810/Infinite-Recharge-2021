@@ -1,21 +1,20 @@
 /**
- * This is a very simple robot program that can be used to send telemetry to
- * the data_logger script to characterize your drivetrain. If you wish to use
- * your actual robot code, you only need to implement the simple logic in the
- * autonomousPeriodic function and change the NetworkTables update rate
- */
+* This is a very simple robot program that can be used to send telemetry to
+* the data_logger script to characterize your drivetrain. If you wish to use
+* your actual robot code, you only need to implement the simple logic in the
+* autonomousPeriodic function and change the NetworkTables update rate
+*/
 
 package dc;
 
 import java.util.function.Supplier;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.EncoderType;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 // WPI_Talon* imports are needed in case a user has a Pigeon on a Talon
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.PigeonIMU;
@@ -27,28 +26,45 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.SPI;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.EncoderType;
+import com.revrobotics.AlternateEncoderType;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PWMTalonSRX;
+import edu.wpi.first.wpilibj.PWMVictorSPX;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import java.util.ArrayList; 
 
 public class Robot extends TimedRobot {
 
-  static private int ENCODER_EPR = 536;
-  static private double WHEEL_DIAMETER = 0.19431;
-  static private double GEARING = 12.75;
+  static private int ENCODER_EDGES_PER_REV = 1 / 4;
   static private int PIDIDX = 0;
+  static private int ENCODER_EPR = 1;
+  static private double GEARING = 12.75;
+  
+  private double encoderConstant = (1 / GEARING);
 
   Joystick stick;
   DifferentialDrive drive;
 
-  CANSparkMax leftMaster;
-  CANSparkMax rightMaster;
 
   Supplier<Double> leftEncoderPosition;
   Supplier<Double> leftEncoderRate;
@@ -56,81 +72,107 @@ public class Robot extends TimedRobot {
   Supplier<Double> rightEncoderRate;
   Supplier<Double> gyroAngleRadians;
 
-  NetworkTableEntry autoSpeedEntry =
-      NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
-  NetworkTableEntry telemetryEntry =
-      NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
-  NetworkTableEntry rotateEntry =
-    NetworkTableInstance.getDefault().getEntry("/robot/rotate");
+  NetworkTableEntry autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
+  NetworkTableEntry telemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
+  NetworkTableEntry rotateEntry = NetworkTableInstance.getDefault().getEntry("/robot/rotate");
 
+  String data = "";
+  
+  int counter = 0;
+  double startTime = 0;
   double priorAutospeed = 0;
-  Number[] numberArray = new Number[10];
+
+  double[] numberArray = new double[10];
+  ArrayList<Double> entries = new ArrayList<Double>();
+  public Robot() {
+    super(.005);
+    LiveWindow.disableAllTelemetry();
+  }
+
+  public enum Sides {
+    LEFT,
+    RIGHT,
+    FOLLOWER
+  }
+
+  // methods to create and setup motors (reduce redundancy)
+  public CANSparkMax setupCANSparkMax(int port, Sides side, boolean inverted) {
+    // create new motor and set neutral modes (if needed)
+    // setup Brushless spark
+    CANSparkMax motor = new CANSparkMax(port, MotorType.kBrushless);
+    motor.restoreFactoryDefaults(); 
+    motor.setIdleMode(IdleMode.kBrake);  
+    motor.setInverted(inverted);
+    
+    // setup encoder if motor isn't a follower
+    if (side != Sides.FOLLOWER) {
+    
+      
+      CANEncoder encoder = motor.getEncoder();
+
+
+
+    switch (side) {
+      // setup encoder and data collecting methods
+
+      case RIGHT:
+        // set right side methods = encoder methods
+
+
+        rightEncoderPosition = ()
+          -> encoder.getPosition() * encoderConstant;
+        rightEncoderRate = ()
+          -> encoder.getVelocity() * encoderConstant / 60.;
+
+        break;
+      case LEFT:
+        leftEncoderPosition = ()
+          -> encoder.getPosition() * encoderConstant;
+        leftEncoderRate = ()
+          -> encoder.getVelocity() * encoderConstant / 60.;
+
+        break;
+      default:
+        // probably do nothing
+        break;
+
+      }
+    
+    }
+    
+
+    return motor;
+
+  }
 
   @Override
   public void robotInit() {
     if (!isReal()) SmartDashboard.putData(new SimEnabler());
 
     stick = new Joystick(0);
+    
+    // create left motor
+    CANSparkMax leftMotor = setupCANSparkMax(3, Sides.LEFT, false);
 
-    leftMaster = new CANSparkMax(3, MotorType.kBrushed);
-    leftMaster.setInverted(false);
-    leftMaster.setIdleMode(IdleMode.kBrake);
+    CANSparkMax leftFollowerID4 = setupCANSparkMax(4, Sides.FOLLOWER, false);
+    leftFollowerID4.follow(leftMotor, false);
+        
+    
 
-    rightMaster = new CANSparkMax(1, MotorType.kBrushed);
-    rightMaster.setInverted(false);
-    rightMaster.setIdleMode(IdleMode.kBrake);
-
-    CANSparkMax leftSlave0 = new CANSparkMax(4, MotorType.kBrushed);
-    leftSlave0.follow(leftMaster);
-    leftSlave0.setIdleMode(IdleMode.kBrake);
-
-    CANSparkMax rightSlave0 = new CANSparkMax(2, MotorType.kBrushed);
-    rightSlave0.follow(rightMaster);
-    rightSlave0.setIdleMode(IdleMode.kBrake);
+    CANSparkMax rightMotor = setupCANSparkMax(1, Sides.RIGHT, false);
+    CANSparkMax rightFollowerID2 = setupCANSparkMax(2, Sides.FOLLOWER, false);
+    rightFollowerID2.follow(rightMotor, false);
+    drive = new DifferentialDrive(leftMotor, rightMotor);
+    drive.setDeadband(0);
 
     //
     // Configure gyro
     //
 
-    // Note that the angle from the NavX and all implementors of wpilib Gyro
+    // Note that the angle from the NavX and all implementors of WPILib Gyro
     // must be negated because getAngle returns a clockwise positive angle
     AHRS navx = new AHRS(SPI.Port.kMXP);
     gyroAngleRadians = () -> -1 * Math.toRadians(navx.getAngle());
-
-    //
-    // Configure drivetrain movement
-    //
-
-    drive = new DifferentialDrive(leftMaster, rightMaster);
-
-    drive.setDeadband(0);
-
-    //
-    // Configure encoder related functions -- getDistance and getrate should
-    // return units and units/s
-    //
-
-    double encoderConstant =
-        (1 / GEARING) * WHEEL_DIAMETER * Math.PI;
-
-    CANEncoder leftEncoder = leftMaster.getEncoder(EncoderType.kQuadrature, ENCODER_EPR);
-    CANEncoder rightEncoder = rightMaster.getEncoder(EncoderType.kQuadrature, ENCODER_EPR);
-
-
-
-    leftEncoderPosition = ()
-        -> leftEncoder.getPosition() * encoderConstant;
-    leftEncoderRate = ()
-        -> leftEncoder.getVelocity() * encoderConstant / 60.;
-
-    rightEncoderPosition = ()
-        -> rightEncoder.getPosition() * encoderConstant;
-    rightEncoderRate = ()
-        -> rightEncoder.getVelocity() * encoderConstant / 60.;
-
-    // Reset encoders
-    leftEncoder.setPosition(0);
-    rightEncoder.setPosition(0);
 
     // Set the update rate instead of using flush because of a ntcore bug
     // -> probably don't want to do this on a robot in competition
@@ -139,12 +181,22 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledInit() {
+    double elapsedTime = Timer.getFPGATimestamp() - startTime;
     System.out.println("Robot disabled");
     drive.tankDrive(0, 0);
+    // data processing step
+    data = entries.toString();
+    data = data.substring(1, data.length() - 1) + ", ";
+    telemetryEntry.setString(data);
+    entries.clear();
+    System.out.println("Robot disabled");
+    System.out.println("Collected : " + counter + " in " + elapsedTime + " seconds");
+    data = "";
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
   public void robotPeriodic() {
@@ -168,16 +220,18 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     System.out.println("Robot in autonomous mode");
+    startTime = Timer.getFPGATimestamp();
+    counter = 0;
   }
 
   /**
-   * If you wish to just use your own robot program to use with the data logging
-   * program, you only need to copy/paste the logic below into your code and
-   * ensure it gets called periodically in autonomous mode
-   *
-   * Additionally, you need to set NetworkTables update rate to 10ms using the
-   * setUpdateRate call.
-   */
+  * If you wish to just use your own robot program to use with the data logging
+  * program, you only need to copy/paste the logic below into your code and
+  * ensure it gets called periodically in autonomous mode
+  * 
+  * Additionally, you need to set NetworkTables update rate to 10ms using the
+  * setUpdateRate call.
+  */
   @Override
   public void autonomousPeriodic() {
 
@@ -191,9 +245,10 @@ public class Robot extends TimedRobot {
     double rightRate = rightEncoderRate.get();
 
     double battery = RobotController.getBatteryVoltage();
+    double motorVolts = battery * Math.abs(priorAutospeed);
 
-    double leftMotorVolts = leftMaster.getBusVoltage() * leftMaster.getAppliedOutput();
-    double rightMotorVolts = rightMaster.getBusVoltage() * rightMaster.getAppliedOutput();
+    double leftMotorVolts = motorVolts;
+    double rightMotorVolts = motorVolts;
 
     // Retrieve the commanded speed from NetworkTables
     double autospeed = autoSpeedEntry.getDouble(0);
@@ -204,8 +259,7 @@ public class Robot extends TimedRobot {
       (rotateEntry.getBoolean(false) ? -1 : 1) * autospeed, autospeed,
       false
     );
-    
-    // send telemetry data array back to NT
+
     numberArray[0] = now;
     numberArray[1] = battery;
     numberArray[2] = autospeed;
@@ -217,6 +271,10 @@ public class Robot extends TimedRobot {
     numberArray[8] = rightRate;
     numberArray[9] = gyroAngleRadians.get();
 
-    telemetryEntry.setNumberArray(numberArray);
+    // Add data to a string that is uploaded to NT
+    for (double num : numberArray) {
+      entries.add(num);
+    }
+    counter++;
   }
 }
