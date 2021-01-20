@@ -4,8 +4,12 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -18,6 +22,7 @@ import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -45,7 +50,7 @@ public class RobotContainer {
   private final ShooterSystem m_shoot = new ShooterSystem();
 
   private final Joystick left = new Joystick(0);
-  private final Joystick right = new Joystick(1);
+  //private final Joystick right = new Joystick(1);
   
   private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun;
 
@@ -53,9 +58,13 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    //m_drive.setDefaultCommand(
+    //  new RunCommand(()-> m_drive.tankDrive(left.getRawAxis(1), right.getRawAxis(1)), m_drive)
+    //);
+
     m_drive.setDefaultCommand(
-      new RunCommand(()-> m_drive.tankDrive(left.getRawAxis(1), right.getRawAxis(1)), m_drive)
-    );
+      new RunCommand(()-> m_drive.arcadeDrive(left.getRawAxis(1), left.getRawAxis(2)), m_drive)
+      );
   }
 
   /**
@@ -65,15 +74,15 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    intakeOut = new JoystickButton(left, 0);
+    intakeOut = new JoystickButton(left, 1);
       intakeOut.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.intakeSOL), m_shoot));
-    switchShoot = new JoystickButton(left, 1);
+    switchShoot = new JoystickButton(left, 2);
       switchShoot.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.shooterSOL), m_shoot));
-    shootRun = new JoystickButton(left, 2);
+    shootRun = new JoystickButton(left, 3);
       shootRun.whileHeld(new RunCommand(()->m_shoot.shoot(1), m_shoot));
-    intakeRun = new JoystickButton(left, 2);
+    intakeRun = new JoystickButton(left, 4);
       intakeRun.whileHeld(new RunCommand(()->m_shoot.runIntake(1), m_shoot));
-    feedRun = new JoystickButton(left, 2);
+    feedRun = new JoystickButton(left, 5);
       feedRun.whileHeld(new RunCommand(()->m_shoot.runFeed(1), m_shoot));
   }
 
@@ -90,7 +99,7 @@ public class RobotContainer {
                                        Constants.kvVoltSecondsPerMeter,
                                        Constants.kaVoltSecondsSquaredPerMeter),
             m_drive.m_kinematics,
-            10);
+            12);
 
     // Create config for trajectory
     TrajectoryConfig config =
@@ -115,6 +124,15 @@ public class RobotContainer {
         // Pass config
         config
     );
+
+    String trajectoryJSON = "paths/Unnamed.wpilib.json";
+    Trajectory trajectory = new Trajectory();
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException ex) {
+      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    }
 
     RamseteCommand ramseteCommand = new RamseteCommand(
         exampleTrajectory,

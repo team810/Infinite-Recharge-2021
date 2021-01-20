@@ -91,4 +91,8 @@ public class Drivetrain extends SubsystemBase {
   public Pose2d getPose(){
     return m_odometry.getPoseMeters();
   }
+
+  public void arcadeDrive(double speed, double rot){
+    drive.arcadeDrive(speed, rot);
+  }
 }

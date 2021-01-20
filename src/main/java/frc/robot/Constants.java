@@ -96,13 +96,13 @@ public final class Constants {
     public static final double WHEEL_DIAMETER = 0;
 
     //AUTONOMOUS
-    public static final double ksVolts = 0.22;
-    public static final double kvVoltSecondsPerMeter = 1.98;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.2;
+    public static final double ksVolts = 0.184;
+    public static final double kvVoltSecondsPerMeter = 2.74;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.319;
 
-    public static final double kPDriveVel = 8.5;
+    public static final double kPDriveVel = 12.6;
 
-    public static final double kMaxSpeedMetersPerSecond = 3;
+    public static final double kMaxSpeedMetersPerSecond = 6;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
 
     public static final double kRamseteB = 2; // dont change this and the val below
@@ -110,5 +110,5 @@ public final class Constants {
 
 
     //TRAJGEN
-    public static final double TRACK_WIDTH_METERS = 0.69;
+    public static final double TRACK_WIDTH_METERS = 1.135908083891128;
 }
