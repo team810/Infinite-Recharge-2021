@@ -7,6 +7,9 @@ package frc.robot;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.system.LinearSystem;
+import edu.wpi.first.wpilibj.system.plant.LinearSystemId;
+import edu.wpi.first.wpiutil.math.numbers.N2;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -103,7 +106,10 @@ public final class Constants {
     public static final double kPDriveVel = 12.6;
 
     public static final double kMaxSpeedMetersPerSecond = 6;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 4;
+
+    public static final double kvVoltSecondsPerRadian = 2.74;
+    public static final double kaVoltSecondsSquaredPerRadian = 0.321;
 
     public static final double kRamseteB = 2; // dont change this and the val below
     public static final double kRamseteZeta = 0.7;
@@ -111,4 +117,10 @@ public final class Constants {
 
     //TRAJGEN
     public static final double TRACK_WIDTH_METERS = 1.135908083891128;
+
+    public static final LinearSystem<N2, N2, N2> kDrivetrainPlant = 
+        LinearSystemId.identifyDrivetrainSystem(
+            kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter,
+            kvVoltSecondsPerRadian, kaVoltSecondsSquaredPerRadian
+        );
 }

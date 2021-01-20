@@ -46,7 +46,7 @@ public class RobotContainer {
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
-  private final Drivetrain m_drive = new Drivetrain();
+  public final Drivetrain m_drive = new Drivetrain();
   private final ShooterSystem m_shoot = new ShooterSystem();
 
   private final Joystick left = new Joystick(0);

@@ -14,7 +14,11 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
+import edu.wpi.first.wpilibj.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpiutil.math.VecBuilder;
 import frc.robot.Constants;
 
 public class Drivetrain extends SubsystemBase {
@@ -38,15 +42,19 @@ public class Drivetrain extends SubsystemBase {
   public DifferentialDriveKinematics m_kinematics =
     new DifferentialDriveKinematics(Constants.TRACK_WIDTH_METERS);
 
+  public DifferentialDrivetrainSim m_drivetrainSim;
+
+  //public EncoderSim m_leftEncoderSim = front_L.getEncoder();
+
   public Drivetrain() {
     drive.setSafetyEnabled(false);
     back_L.follow(front_L);
     back_R.follow(front_R);
 
-    front_L.setMotorType(MotorType.kBrushless);
-    front_R.setMotorType(MotorType.kBrushless);
-    back_L.setMotorType(MotorType.kBrushless);
-    back_R.setMotorType(MotorType.kBrushless);
+    m_drivetrainSim = new DifferentialDrivetrainSim(
+      Constants.kDrivetrainPlant, DCMotor.getNEO(2), 12.75, 
+      Constants.TRACK_WIDTH_METERS, Constants.RADIUS / 2.0, 
+      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
   }
 
   @Override
@@ -95,4 +103,6 @@ public class Drivetrain extends SubsystemBase {
   public void arcadeDrive(double speed, double rot){
     drive.arcadeDrive(speed, rot);
   }
+
+  public double getDrawnCurrentAmps(){ return m_drivetrainSim.getCurrentDrawAmps();}
 }
