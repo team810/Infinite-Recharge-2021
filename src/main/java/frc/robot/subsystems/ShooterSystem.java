@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -14,14 +15,18 @@ import frc.robot.Constants;
 
 public class ShooterSystem extends SubsystemBase {
   /** Creates a new ShooterSystem. */
-  private CANSparkMax intake, feed, shoot;
+  private CANSparkMax intake, feed, shoot, shoot_slave;
   public DoubleSolenoid intakeSOL = new DoubleSolenoid(Constants.INTAKE_FORWARD, Constants.INTAKE_REVERSE);
   public DoubleSolenoid shooterSOL = new DoubleSolenoid(Constants.SHOOTER_FORWARD, Constants.SHOOTER_REVERSE);
+
 
   public ShooterSystem() {
     intake = new CANSparkMax(Constants.INTAKE_MOTOR, MotorType.kBrushless);
     feed = new CANSparkMax(Constants.FEED_MOTOR, MotorType.kBrushless);
     shoot = new CANSparkMax(Constants.SHOOT_MOTOR, MotorType.kBrushless);
+    shoot_slave = new CANSparkMax(Constants.SHOOT_SLAVE, MotorType.kBrushless);
+
+    shoot_slave.follow(shoot, true);
   }
 
   @Override
@@ -48,4 +53,6 @@ public class ShooterSystem extends SubsystemBase {
       d.set(Value.kForward);
     }
   }
+
+  public CANSparkMax getShooter(){ return shoot;}
 }

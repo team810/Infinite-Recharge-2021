@@ -49,8 +49,9 @@ public final class Constants {
 	public static final int FRONTR = 1;
     public static final int BACKR = 2;
 
-    public static final int SHOOT_MOTOR = 8;
-    public static final int FEED_MOTOR = 7;
+    public static final int SHOOT_MOTOR = 7;
+    public static final int SHOOT_SLAVE = 9;
+    public static final int FEED_MOTOR = 8;
     public static final int INTAKE_MOTOR = 5;
     public static final int CPMOTOR = 6;
     
