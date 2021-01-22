@@ -74,7 +74,6 @@ public class shoot extends CommandBase {
     double minV = tab.add("Min Velocity", maxVel * -1).getEntry().getDouble(0);
     double maxA = tab.add("Max Acceleration", maxAcc).getEntry().getDouble(0);
     double allE = tab.add("Allowed Closed Loop Error", 10).getEntry().getDouble(0);
-    
     double maxE = tab.add("Max Closed Loop Error", 10).getEntry().getDouble(0);;
 
     // if PID coefficients on SmartDashboard have changed, write new values to controller
@@ -116,7 +115,9 @@ public class shoot extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    m_shoot.shoot(0);
+  }
 
   // Returns true when the command should end.
   @Override

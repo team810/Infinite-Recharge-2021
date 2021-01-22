@@ -53,14 +53,8 @@ public final class Constants {
     public static final int SHOOT_SLAVE = 9;
     public static final int FEED_MOTOR = 8;
     public static final int INTAKE_MOTOR = 5;
-    public static final int CPMOTOR = 6;
     
-    public static final int CONTROL_PANEL_MOTOR = 6;
-
-    public static final int WINCH = 0;
-    public static final int CLIMB_MOTOR = 10;
-
-    public static final double RADIUS = 7.56;
+    public static final double RADIUS = 7.56 / 2.0;
 
     public static final double CIRCUMFERENCE = Math.PI * 2.0 * RADIUS;
 
@@ -70,13 +64,7 @@ public final class Constants {
 
     public static final int SHOOTER_FORWARD = 2;
     public static final int SHOOTER_REVERSE = 3;
-
-    public static final int CONTROL_EXTEND = 0;
-    public static final int CONTROL_RETRACT = 1;
-
-    public static final int CLIMB_EXTEND = 6;
-    public static final int CLIMB_RETRACT = 7;
-    
+  
     public static final boolean kGyroReversed = false;
 	public static final double kTurnToleranceDeg = 3;
     public static final double kTurnRateToleranceDegPerS = 3;
@@ -96,8 +84,8 @@ public final class Constants {
     public static final NetworkTableEntry pipeline = table.getEntry("pipeline");
     public static final NetworkTableEntry stream = table.getEntry("stream");
     
-    public static final double GEAR_RATIO = 0;
-    public static final double WHEEL_DIAMETER = 0;
+    public static final double GEAR_RATIO = 12.75;
+    public static final double WHEEL_DIAMETER = 7.56;
 
     //AUTONOMOUS
     public static final double ksVolts = 0.184;

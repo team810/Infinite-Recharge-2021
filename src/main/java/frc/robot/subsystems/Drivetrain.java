@@ -53,7 +53,7 @@ public class Drivetrain extends SubsystemBase {
 
     m_drivetrainSim = new DifferentialDrivetrainSim(
       Constants.kDrivetrainPlant, DCMotor.getNEO(2), 12.75, 
-      Constants.TRACK_WIDTH_METERS, Constants.RADIUS / 2.0, 
+      Constants.TRACK_WIDTH_METERS, Constants.RADIUS, 
       VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
   }
 

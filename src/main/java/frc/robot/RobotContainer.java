@@ -30,11 +30,8 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.bangBang;
 import frc.robot.commands.shoot;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.ShooterSystem;
 
 /**
@@ -45,9 +42,6 @@ import frc.robot.subsystems.ShooterSystem;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
   public final Drivetrain m_drive = new Drivetrain();
   private final ShooterSystem m_shoot = new ShooterSystem();
@@ -66,9 +60,10 @@ public class RobotContainer {
     //);
 
     m_drive.setDefaultCommand(
-      new RunCommand(()-> m_drive.arcadeDrive(left.getRawAxis(1), left.getRawAxis(2)), m_drive)
-      );  
-    }
+      new RunCommand(
+        ()-> m_drive.arcadeDrive(left.getRawAxis(1), left.getRawAxis(2)), m_drive)
+    );  
+  }
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
@@ -77,18 +72,24 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    intakeOut = new JoystickButton(left, 1);
-      intakeOut.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.intakeSOL), m_shoot));
-    switchShoot = new JoystickButton(left, 2);
-      switchShoot.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.shooterSOL), m_shoot));
-    shootRun = new JoystickButton(left, 3);
-      shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(1), ()-> m_shoot.shoot(0), m_shoot));
-    //shootRun = new JoystickButton(left, 3);
-      //shootRun.whileHeld(new shoot(m_shoot));
-    //shootRun = new JoystickButton(left, 3);
+    shootRun = new JoystickButton(left, 1);
+      shootRun.whileHeld(new shoot(m_shoot));
+
+    //shootRun = new JoystickButton(left, 1);
+    //  shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(1), ()-> m_shoot.shoot(0), m_shoot));
+
+    //shootRun = new JoystickButton(left, 1);
     //  shootRun.whileHeld(new bangBang(m_shoot, 1000));
+
+    intakeOut = new JoystickButton(left, 2);
+      intakeOut.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.intakeSOL), m_shoot));
+
+    switchShoot = new JoystickButton(left, 3);
+      switchShoot.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.shooterSOL), m_shoot));
+
     intakeRun = new JoystickButton(left, 4);
       intakeRun.whileHeld(new StartEndCommand(() -> m_shoot.runIntake(-.25), ()-> m_shoot.runIntake(0), m_shoot));
+
     feedRun = new JoystickButton(left, 5);
       feedRun.whileHeld(new StartEndCommand(() -> m_shoot.runFeed(1), ()-> m_shoot.runFeed(0), m_shoot));
   }
@@ -106,7 +107,7 @@ public class RobotContainer {
                                        Constants.kvVoltSecondsPerMeter,
                                        Constants.kaVoltSecondsSquaredPerMeter),
             m_drive.m_kinematics,
-            12);
+            8);
 
     // Create config for trajectory
     TrajectoryConfig config =
