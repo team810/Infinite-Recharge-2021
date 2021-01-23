@@ -30,8 +30,9 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.shoot;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Feed;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.ShooterSystem;
 
 /**
@@ -45,7 +46,9 @@ public class RobotContainer {
 
   public final Drivetrain m_drive = new Drivetrain();
   private final ShooterSystem m_shoot = new ShooterSystem();
-
+  private final Feed m_feed = new Feed();
+  private final Intake m_intake = new Intake();
+  
   private final Joystick left = new Joystick(0);
   //private final Joystick right = new Joystick(1);
   
@@ -72,26 +75,26 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    shootRun = new JoystickButton(left, 1);
-      shootRun.whileHeld(new shoot(m_shoot));
-
     //shootRun = new JoystickButton(left, 1);
-    //  shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(1), ()-> m_shoot.shoot(0), m_shoot));
+    //  shootRun.whileHeld(new shoot(m_shoot));
+
+    shootRun = new JoystickButton(left, 1);
+      shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(.9), ()-> m_shoot.shoot(0), m_shoot));
 
     //shootRun = new JoystickButton(left, 1);
     //  shootRun.whileHeld(new bangBang(m_shoot, 1000));
 
-    intakeOut = new JoystickButton(left, 2);
-      intakeOut.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.intakeSOL), m_shoot));
+    intakeOut = new JoystickButton(left, 8);
+      intakeOut.whenPressed(new InstantCommand(()->m_intake.toggleSol(m_intake.intakeSOL), m_intake));
 
     switchShoot = new JoystickButton(left, 3);
       switchShoot.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.shooterSOL), m_shoot));
 
     intakeRun = new JoystickButton(left, 4);
-      intakeRun.whileHeld(new StartEndCommand(() -> m_shoot.runIntake(-.25), ()-> m_shoot.runIntake(0), m_shoot));
+      intakeRun.whileHeld(new StartEndCommand(() -> m_intake.runIntake(-1), ()-> m_intake.runIntake(0), m_intake));
 
     feedRun = new JoystickButton(left, 5);
-      feedRun.whileHeld(new StartEndCommand(() -> m_shoot.runFeed(1), ()-> m_shoot.runFeed(0), m_shoot));
+      feedRun.whileHeld(new StartEndCommand(() -> m_feed.runFeed(1), ()-> m_feed.runFeed(0), m_feed));
   }
 
   /**
@@ -107,7 +110,7 @@ public class RobotContainer {
                                        Constants.kvVoltSecondsPerMeter,
                                        Constants.kaVoltSecondsSquaredPerMeter),
             m_drive.m_kinematics,
-            8);
+            5);
 
     // Create config for trajectory
     TrajectoryConfig config =
@@ -124,8 +127,8 @@ public class RobotContainer {
         new Pose2d(0, 0, new Rotation2d(0)),
         // Pass through these two interior waypoints, making an 's' curve path
         List.of(
-            new Translation2d(1, 1),
-            new Translation2d(2, -1)
+            new Translation2d(1, 1)
+            //new Translation2d(2, -1)
         ),
         // End 3 meters straight ahead of where we started, facing forward
         new Pose2d(3, 0, new Rotation2d(0)),
@@ -162,7 +165,7 @@ public class RobotContainer {
     m_drive.resetOdometry(exampleTrajectory.getInitialPose());
 
     // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_drive.tankDriveVolts(0, 0));
+    return ramseteCommand.andThen(() -> m_drive.tankDrive(0, 0));
     //return new RunCommand(()-> m_drive.tankDrive(0.3, 0.3), m_drive).withTimeout(3);
   }
 }

@@ -12,17 +12,13 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-public class ShooterSystem extends SubsystemBase {
-  /** Creates a new ShooterSystem. */
-  private CANSparkMax shoot, shoot_slave;
-  public DoubleSolenoid shooterSOL = new DoubleSolenoid(Constants.SHOOTER_FORWARD, Constants.SHOOTER_REVERSE);
+public class Intake extends SubsystemBase {
+  /** Creates a new Intake. */
+  private CANSparkMax intake;
+  public DoubleSolenoid intakeSOL = new DoubleSolenoid(Constants.INTAKE_FORWARD, Constants.INTAKE_REVERSE);
 
-
-  public ShooterSystem() {
-    shoot = new CANSparkMax(Constants.SHOOT_MOTOR, MotorType.kBrushless);
-    shoot_slave = new CANSparkMax(Constants.SHOOT_SLAVE, MotorType.kBrushless);
-
-    shoot_slave.follow(shoot, true);
+  public Intake() {
+    intake = new CANSparkMax(Constants.INTAKE_MOTOR, MotorType.kBrushless);
   }
 
   @Override
@@ -30,8 +26,9 @@ public class ShooterSystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public void shoot(double speed){
-    shoot.set(speed);
+  
+  public void runIntake(double speed){
+    intake.set(speed);
   }
 
   public void toggleSol(DoubleSolenoid d){
@@ -41,6 +38,4 @@ public class ShooterSystem extends SubsystemBase {
       d.set(Value.kForward);
     }
   }
-
-  public CANSparkMax getShooter(){ return shoot;}
 }
