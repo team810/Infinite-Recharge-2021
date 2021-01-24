@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.EncoderSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.VecBuilder;
 import frc.robot.Constants;
@@ -61,9 +63,10 @@ public class Drivetrain extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     m_odometry.update(
-      navx.getRotation2d(), getLeftEncoderPos() * Constants.CIRCUMFERENCE,
-      getRightEncoderPos() * Constants.CIRCUMFERENCE
+      navx.getRotation2d(), getLeftEncoderPos() * Units.inchesToMeters(Constants.CIRCUMFERENCE),
+      getRightEncoderPos() * Units.inchesToMeters(Constants.CIRCUMFERENCE)
     );
+    SmartDashboard.putNumber("Velocity", front_L.getEncoder().getVelocity());
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){

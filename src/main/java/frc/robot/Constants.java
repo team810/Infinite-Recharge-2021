@@ -88,11 +88,11 @@ public final class Constants {
     public static final double WHEEL_DIAMETER = 7.56;
 
     //AUTONOMOUS
-    public static final double ksVolts = 0.184;
-    public static final double kvVoltSecondsPerMeter = 2.74;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.319;
+    public static final double ksVolts = 0.178;
+    public static final double kvVoltSecondsPerMeter = 2.73;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.43;
 
-    public static final double kPDriveVel = 12.6;
+    public static final double kPDriveVel = 8.24;
 
     public static final double kMaxSpeedMetersPerSecond = 1;
     public static final double kMaxAccelerationMetersPerSecondSquared = 2;
