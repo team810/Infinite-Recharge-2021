@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.shoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Feed;
 import frc.robot.subsystems.Intake;
@@ -50,7 +51,7 @@ public class RobotContainer {
   private final Intake m_intake = new Intake();
   
   private final Joystick left = new Joystick(0);
-  //private final Joystick right = new Joystick(1);
+  private final Joystick right = new Joystick(1);
   
   private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun;
 
@@ -58,14 +59,22 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    /*
     //m_drive.setDefaultCommand(
     //  new RunCommand(()-> m_drive.tankDrive(left.getRawAxis(1), right.getRawAxis(1)), m_drive)
     //);
-
+    */
     m_drive.setDefaultCommand(
       new RunCommand(
-        ()-> m_drive.arcadeDrive(left.getRawAxis(1), left.getRawAxis(2)), m_drive)
+        ()-> m_drive.tankDrive(left.getRawAxis(1), left.getRawAxis(5)), m_drive)
     );  
+    
+    /*
+    m_drive.setDefaultCommand(new Drive(m_drive,
+      ()->left.getRawAxis(1),
+      ()->right.getRawAxis(5)
+    ));
+    */
   }
 
   /**
@@ -75,11 +84,11 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    //shootRun = new JoystickButton(left, 1);
-    //  shootRun.whileHeld(new shoot(m_shoot));
-
     shootRun = new JoystickButton(left, 1);
-      shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(.9), ()-> m_shoot.shoot(0), m_shoot));
+      shootRun.whileHeld(new shoot(m_shoot));
+
+    //shootRun = new JoystickButton(left, 1);
+    //  shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(.9), ()-> m_shoot.shoot(0), m_shoot));
 
     //shootRun = new JoystickButton(left, 1);
     //  shootRun.whileHeld(new bangBang(m_shoot, 1000));

@@ -34,7 +34,7 @@ public class Drivetrain extends SubsystemBase {
   public final CANSparkMax back_R = new CANSparkMax(Constants.BACKR, MotorType.kBrushless);
 
     
-  private final DifferentialDrive drive = new DifferentialDrive(back_L, front_R);
+  private final DifferentialDrive drive = new DifferentialDrive(front_L, front_R);
 
   public final AHRS navx = new AHRS(SPI.Port.kMXP); // change to I2C if not working
   
@@ -57,16 +57,24 @@ public class Drivetrain extends SubsystemBase {
       Constants.kDrivetrainPlant, DCMotor.getNEO(2), 12.75, 
       Constants.TRACK_WIDTH_METERS, Constants.RADIUS, 
       VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+
+    //set conversion factors
+    front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
+    front_R.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
+
+    front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
+    front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     m_odometry.update(
-      navx.getRotation2d(), getLeftEncoderPos() * Units.inchesToMeters(Constants.CIRCUMFERENCE),
-      getRightEncoderPos() * Units.inchesToMeters(Constants.CIRCUMFERENCE)
+      navx.getRotation2d(), getLeftEncoderPos(),
+      getRightEncoderPos()
     );
     SmartDashboard.putNumber("Velocity", front_L.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Heading", navx.getRotation2d().getDegrees());
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
@@ -95,6 +103,7 @@ public class Drivetrain extends SubsystemBase {
     front_L.setVoltage(leftVolts);
     drive.feed();
   }
+
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
     return new DifferentialDriveWheelSpeeds(front_L.getEncoder().getVelocity(), front_R.getEncoder().getVelocity());
   }
