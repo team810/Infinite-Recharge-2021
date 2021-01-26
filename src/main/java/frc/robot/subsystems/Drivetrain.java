@@ -34,7 +34,7 @@ public class Drivetrain extends SubsystemBase {
   public final CANSparkMax back_R = new CANSparkMax(Constants.BACKR, MotorType.kBrushless);
 
     
-  private final DifferentialDrive drive = new DifferentialDrive(front_L, front_R);
+  private final DifferentialDrive drive = new DifferentialDrive(back_L, front_R);
 
   public final AHRS navx = new AHRS(SPI.Port.kMXP); // change to I2C if not working
   
@@ -50,7 +50,12 @@ public class Drivetrain extends SubsystemBase {
 
   public Drivetrain() {
     drive.setSafetyEnabled(false);
-    back_L.follow(front_L);
+    back_L.restoreFactoryDefaults();
+    back_R.restoreFactoryDefaults();
+    front_R.restoreFactoryDefaults();
+    front_L.restoreFactoryDefaults();
+    
+    front_L.follow(back_L);
     back_R.follow(front_R);
 
     m_drivetrainSim = new DifferentialDrivetrainSim(
@@ -78,7 +83,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
-    drive.tankDrive(leftSpeed, rightSpeed);
+    drive.tankDrive(-leftSpeed, -rightSpeed);
   }
 
   public void resetEncoders(){

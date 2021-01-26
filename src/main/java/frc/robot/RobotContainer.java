@@ -64,10 +64,12 @@ public class RobotContainer {
     //  new RunCommand(()-> m_drive.tankDrive(left.getRawAxis(1), right.getRawAxis(1)), m_drive)
     //);
     */
+    
     m_drive.setDefaultCommand(
       new RunCommand(
         ()-> m_drive.tankDrive(left.getRawAxis(1), left.getRawAxis(5)), m_drive)
     );  
+    
     
     /*
     m_drive.setDefaultCommand(new Drive(m_drive,
@@ -88,19 +90,19 @@ public class RobotContainer {
       shootRun.whileHeld(new shoot(m_shoot));
 
     //shootRun = new JoystickButton(left, 1);
-    //  shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(.9), ()-> m_shoot.shoot(0), m_shoot));
+    //  shootRun.whileHeld(new StartEndCommand(() -> m_shoot.shoot(1), ()-> m_shoot.shoot(0), m_shoot));
 
     //shootRun = new JoystickButton(left, 1);
     //  shootRun.whileHeld(new bangBang(m_shoot, 1000));
 
-    intakeOut = new JoystickButton(left, 8);
+    intakeOut = new JoystickButton(left, 6);
       intakeOut.whenPressed(new InstantCommand(()->m_intake.toggleSol(m_intake.intakeSOL), m_intake));
 
     switchShoot = new JoystickButton(left, 3);
       switchShoot.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.shooterSOL), m_shoot));
 
     intakeRun = new JoystickButton(left, 4);
-      intakeRun.whileHeld(new StartEndCommand(() -> m_intake.runIntake(-1), ()-> m_intake.runIntake(0), m_intake));
+      intakeRun.whileHeld(new StartEndCommand(() -> m_intake.runIntake(-.25), ()-> m_intake.runIntake(0), m_intake));
 
     feedRun = new JoystickButton(left, 5);
       feedRun.whileHeld(new StartEndCommand(() -> m_feed.runFeed(1), ()-> m_feed.runFeed(0), m_feed));

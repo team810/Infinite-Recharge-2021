@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -21,7 +22,8 @@ public class ShooterSystem extends SubsystemBase {
   public ShooterSystem() {
     shoot = new CANSparkMax(Constants.SHOOT_MOTOR, MotorType.kBrushless);
     shoot_slave = new CANSparkMax(Constants.SHOOT_SLAVE, MotorType.kBrushless);
-
+    shoot.setIdleMode(IdleMode.kCoast);
+    shoot_slave.setIdleMode(IdleMode.kCoast);
     shoot_slave.follow(shoot, true);
   }
 

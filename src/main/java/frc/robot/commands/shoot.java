@@ -9,6 +9,7 @@ import com.revrobotics.ControlType;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ShooterSystem;
 
@@ -24,16 +25,17 @@ public class shoot extends CommandBase {
   public shoot(ShooterSystem m_shoot) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.m_shoot = m_shoot;
-    m_shoot.getShooter().getPIDController();
+    m_pidController = m_shoot.getShooter().getPIDController();
     addRequirements(m_shoot);
+    SmartDashboard.putNumber("SetSpeed", 3000);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    kP = 5e-5; 
-    kI = 1e-6;
-    kD = 0; 
+    kP = 6e-6; 
+    kI = 4e-7;
+    kD = 7e-6; 
     kIz = 0; 
     kFF = 0.000156; 
     kMaxOutput = 1; 
@@ -57,12 +59,15 @@ public class shoot extends CommandBase {
     m_pidController.setSmartMotionMinOutputVelocity(0, smartMotionSlot);
     m_pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
     m_pidController.setSmartMotionAllowedClosedLoopError(10, smartMotionSlot);
+
+    
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     // read PID coefficients from SmartDashboard
+    /*
     double p = tab.add("P Gain", kP).getEntry().getDouble(0);
     double i = tab.add("I Gain", kI).getEntry().getDouble(0);
     double d = tab.add("D Gain", kD).getEntry().getDouble(0);
@@ -75,7 +80,7 @@ public class shoot extends CommandBase {
     double maxA = tab.add("Max Acceleration", maxAcc).getEntry().getDouble(0);
     double allE = tab.add("Allowed Closed Loop Error", 10).getEntry().getDouble(0);
     double maxE = tab.add("Max Closed Loop Error", 10).getEntry().getDouble(0);;
-
+    
     // if PID coefficients on SmartDashboard have changed, write new values to controller
     if((p != kP)) { m_pidController.setP(p); kP = p; }
     if((i != kI)) { m_pidController.setI(i); kI = i; }
@@ -90,27 +95,19 @@ public class shoot extends CommandBase {
     if((minV != maxVel * -1)) { m_pidController.setSmartMotionMinOutputVelocity(minV,0); maxVel = minV; }
     if((maxA != maxAcc)) { m_pidController.setSmartMotionMaxAccel(maxA,0); maxAcc = maxA; }
     if((allE != maxE)) { m_pidController.setSmartMotionAllowedClosedLoopError(allE,0); maxE = allE; }
-
+    */
     double setPoint, processVariable;
-    boolean mode = tab.add("Mode", 0).getEntry().getBoolean(false);
-    if(mode) {
-      setPoint = tab.add("Set Velocity", 0).getEntry().getDouble(0);
-      m_pidController.setReference(setPoint, ControlType.kVelocity);
-      processVariable = m_shoot.getShooter().getEncoder().getVelocity();
-    } else {
-      setPoint = tab.add("Set Position", 0).getEntry().getDouble(0);
-      /**
-       * As with other PID modes, Smart Motion is set by calling the
-       * setReference method on an existing pid object and setting
-       * the control type to kSmartMotion
-       */
-      m_pidController.setReference(setPoint, ControlType.kSmartMotion);
-      processVariable = m_shoot.getShooter().getEncoder().getPosition();
-    }
-    
+
+    //setPoint = tab.add("Set Velocity", 0).getEntry().getDouble(0);
+    setPoint = SmartDashboard.getNumber("SetSpeed", 3000);
+    m_pidController.setReference(setPoint, ControlType.kVelocity);
+    processVariable = m_shoot.getShooter().getEncoder().getVelocity();
+    SmartDashboard.putNumber("Shooter Speed", processVariable);
+    /*
     tab.add("SetPoint", setPoint).getEntry().getDouble(setPoint);
     tab.add("Process Variable", processVariable).getEntry().getDouble(processVariable);
     tab.add("Output", m_shoot.getShooter().getAppliedOutput()).getEntry().getDouble(m_shoot.getShooter().getAppliedOutput());
+    */
   }
 
   // Called once the command ends or is interrupted.
