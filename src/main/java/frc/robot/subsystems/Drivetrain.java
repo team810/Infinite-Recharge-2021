@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -34,7 +35,7 @@ public class Drivetrain extends SubsystemBase {
   public final CANSparkMax back_R = new CANSparkMax(Constants.BACKR, MotorType.kBrushless);
 
     
-  private final DifferentialDrive drive = new DifferentialDrive(back_L, front_R);
+  private final DifferentialDrive drive = new DifferentialDrive(front_L, front_R);
 
   public final AHRS navx = new AHRS(SPI.Port.kMXP); // change to I2C if not working
   
@@ -55,13 +56,18 @@ public class Drivetrain extends SubsystemBase {
     front_R.restoreFactoryDefaults();
     front_L.restoreFactoryDefaults();
     
-    front_L.follow(back_L);
-    back_R.follow(front_R);
+    if(front_L.follow(back_L) != CANError.kOk){
+      System.out.println("FRONTL FOLLOW BACKL FAILED");
+    }
+    if(back_R.follow(front_R) != CANError.kOk){
+      System.out.println("FRONTR FOLLOW BACKR FAILED");
+    }
 
     m_drivetrainSim = new DifferentialDrivetrainSim(
       Constants.kDrivetrainPlant, DCMotor.getNEO(2), 12.75, 
       Constants.TRACK_WIDTH_METERS, Constants.RADIUS, 
-      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
+    );
 
     //set conversion factors
     front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
@@ -83,7 +89,9 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
-    drive.tankDrive(-leftSpeed, -rightSpeed);
+    front_L.set(-leftSpeed);
+    front_R.set(-rightSpeed);
+    //drive.tankDrive(-leftSpeed, -rightSpeed);
   }
 
   public void resetEncoders(){
