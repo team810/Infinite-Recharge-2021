@@ -112,4 +112,10 @@ public final class Constants {
             kvVoltSecondsPerMeter, kaVoltSecondsSquaredPerMeter,
             kvVoltSecondsPerRadian, kaVoltSecondsSquaredPerRadian
         );
+
+    //LIMELIGHT 
+	public static final int TARGET_HEIGHT = 0;
+	public static final int LIMELIGHT_HEIGHT = 0;
+	public static final double LIMELIGHT_ANGLE = 0;
+	public static final int SERVO = 0;
 }
