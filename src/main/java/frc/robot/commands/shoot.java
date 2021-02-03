@@ -7,6 +7,8 @@ package frc.robot.commands;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.ControlType;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,14 +22,18 @@ public class shoot extends CommandBase {
   double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM,
     maxVel, maxAcc;
   int smartMotionSlot;
-  ShuffleboardTab tab = Shuffleboard.getTab("Shooter");
+  ShuffleboardTab tab;
+  private NetworkTableEntry setSpeed, setP, setI, setD, speed;
 
   public shoot(ShooterSystem m_shoot) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.m_shoot = m_shoot;
     m_pidController = m_shoot.getShooter().getPIDController();
     addRequirements(m_shoot);
-    SmartDashboard.putNumber("SetSpeed", 3000);
+    //SmartDashboard.putNumber("SetSpeed", 3000);
+    //
+    
+    smartdashboardInit();
   }
 
   // Called when the command is initially scheduled.
@@ -47,13 +53,6 @@ public class shoot extends CommandBase {
     maxAcc = 1500;
 
     // set PID coefficients
-    m_pidController.setP(kP);
-    m_pidController.setI(kI);
-    m_pidController.setD(kD);
-    m_pidController.setIZone(kIz);
-    m_pidController.setFF(kFF);
-    m_pidController.setOutputRange(kMinOutput, kMaxOutput);
-
     smartMotionSlot = 0;
     m_pidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
     m_pidController.setSmartMotionMinOutputVelocity(0, smartMotionSlot);
@@ -66,48 +65,24 @@ public class shoot extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // read PID coefficients from SmartDashboard
-    /*
-    double p = tab.add("P Gain", kP).getEntry().getDouble(0);
-    double i = tab.add("I Gain", kI).getEntry().getDouble(0);
-    double d = tab.add("D Gain", kD).getEntry().getDouble(0);
-    double iz = tab.add("I Zone", kIz).getEntry().getDouble(0);
-    double ff = tab.add("Feed Forward", kFF).getEntry().getDouble(0);
-    double max = tab.add("Max Output", kMaxOutput).getEntry().getDouble(0);
-    double min = tab.add("Min Output", kMinOutput).getEntry().getDouble(0);
-    double maxV = tab.add("Max Velocity", maxVel).getEntry().getDouble(0);
-    double minV = tab.add("Min Velocity", maxVel * -1).getEntry().getDouble(0);
-    double maxA = tab.add("Max Acceleration", maxAcc).getEntry().getDouble(0);
-    double allE = tab.add("Allowed Closed Loop Error", 10).getEntry().getDouble(0);
-    double maxE = tab.add("Max Closed Loop Error", 10).getEntry().getDouble(0);;
+    kP = setP.getDouble(6e-6); 
+    kI = setI.getDouble(4e-7);
+    kD = setD.getDouble(7e-6); 
+
+    m_pidController.setP(kP);
+    m_pidController.setI(kI);
+    m_pidController.setD(kD);
+    m_pidController.setIZone(kIz);
+    m_pidController.setFF(kFF);
+    m_pidController.setOutputRange(kMinOutput, kMaxOutput);
     
-    // if PID coefficients on SmartDashboard have changed, write new values to controller
-    if((p != kP)) { m_pidController.setP(p); kP = p; }
-    if((i != kI)) { m_pidController.setI(i); kI = i; }
-    if((d != kD)) { m_pidController.setD(d); kD = d; }
-    if((iz != kIz)) { m_pidController.setIZone(iz); kIz = iz; }
-    if((ff != kFF)) { m_pidController.setFF(ff); kFF = ff; }
-    if((max != kMaxOutput) || (min != kMinOutput)) { 
-      m_pidController.setOutputRange(min, max); 
-      kMinOutput = min; kMaxOutput = max; 
-    }
-    if((maxV != maxVel)) { m_pidController.setSmartMotionMaxVelocity(maxV,0); maxVel = maxV; }
-    if((minV != maxVel * -1)) { m_pidController.setSmartMotionMinOutputVelocity(minV,0); maxVel = minV; }
-    if((maxA != maxAcc)) { m_pidController.setSmartMotionMaxAccel(maxA,0); maxAcc = maxA; }
-    if((allE != maxE)) { m_pidController.setSmartMotionAllowedClosedLoopError(allE,0); maxE = allE; }
-    */
     double setPoint, processVariable;
 
-    //setPoint = tab.add("Set Velocity", 0).getEntry().getDouble(0);
-    setPoint = SmartDashboard.getNumber("SetSpeed", 3000);
+    setPoint = setSpeed.getDouble(5000);
     m_pidController.setReference(setPoint, ControlType.kVelocity);
     processVariable = m_shoot.getShooter().getEncoder().getVelocity();
-    SmartDashboard.putNumber("Shooter Speed", processVariable);
-    /*
-    tab.add("SetPoint", setPoint).getEntry().getDouble(setPoint);
-    tab.add("Process Variable", processVariable).getEntry().getDouble(processVariable);
-    tab.add("Output", m_shoot.getShooter().getAppliedOutput()).getEntry().getDouble(m_shoot.getShooter().getAppliedOutput());
-    */
+    //SmartDashboard.putNumber("Shooter Speed", processVariable);
+    speed.setDouble(processVariable);
   }
 
   // Called once the command ends or is interrupted.
@@ -120,5 +95,15 @@ public class shoot extends CommandBase {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  private void smartdashboardInit(){
+    ShuffleboardTab tab = Shuffleboard.getTab("Shooter System");
+    Shuffleboard.selectTab("Shooter System");
+    setSpeed = tab.add("Set Speed", 5000).getEntry();
+    setSpeed = tab.add("Speed", 0).getEntry();
+    setP = tab.addPersistent("P", 6e-6).getEntry();
+    setI = tab.addPersistent("I", 4e-7).getEntry();
+    setD = tab.addPersistent("D", 7e-6).getEntry();
   }
 }

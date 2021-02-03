@@ -53,6 +53,7 @@ public final class Constants {
     public static final int SHOOT_SLAVE = 9;
     public static final int FEED_MOTOR = 7;
     public static final int INTAKE_MOTOR = 5;
+    public static final int SERVO_MOTOR = 1;
     
     public static final double RADIUS = 7.56 / 2.0;
 

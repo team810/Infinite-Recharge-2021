@@ -67,7 +67,7 @@ public class RobotContainer {
     
     m_drive.setDefaultCommand(
       new RunCommand(
-        ()-> m_drive.tankDrive(left.getRawAxis(1), left.getRawAxis(5)), m_drive)
+        ()-> m_drive.tankDrive(left.getRawAxis(1), right.getRawAxis(1)), m_drive)
     );  
     
     

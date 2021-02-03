@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.SPI;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.VecBuilder;
 import frc.robot.Constants;
+import frc.robot.util.SparkMaxControllerGroup;
 
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
@@ -33,8 +35,10 @@ public class Drivetrain extends SubsystemBase {
   public final CANSparkMax back_L =  new CANSparkMax(Constants.BACKL, MotorType.kBrushless);
   public final CANSparkMax back_R = new CANSparkMax(Constants.BACKR, MotorType.kBrushless);
 
-    
-  private final DifferentialDrive drive = new DifferentialDrive(back_L, front_R);
+  private final SparkMaxControllerGroup left = new SparkMaxControllerGroup("left", front_L, back_L);
+  private final SparkMaxControllerGroup right = new SparkMaxControllerGroup("right", front_R, back_R);
+
+  private final DifferentialDrive drive = new DifferentialDrive(left.getMasterMotor(), right.getMasterMotor());
 
   public final AHRS navx = new AHRS(SPI.Port.kMXP); // change to I2C if not working
   
@@ -54,9 +58,6 @@ public class Drivetrain extends SubsystemBase {
     back_R.restoreFactoryDefaults();
     front_R.restoreFactoryDefaults();
     front_L.restoreFactoryDefaults();
-    
-    front_L.follow(back_L);
-    back_R.follow(front_R);
 
     m_drivetrainSim = new DifferentialDrivetrainSim(
       Constants.kDrivetrainPlant, DCMotor.getNEO(2), 12.75, 
@@ -83,7 +84,9 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
-    drive.tankDrive(-leftSpeed, -rightSpeed);
+    left.set(leftSpeed);
+    right.set(rightSpeed);
+    //drive.tankDrive(-leftSpeed, -rightSpeed);
   }
 
   public void resetEncoders(){
