@@ -4,38 +4,71 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Limelight;
 
-// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
-// information, see:
-// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class TurnToTarget extends PIDCommand {
+public class TurnToTarget extends CommandBase {
+  private Drivetrain m_drive;
+  private Limelight m_lime;
+  private double kP, kI, kD, minThreshold, error;
+  ShuffleboardTab tab;
+  private NetworkTableEntry setMin, setP, setI, setD, angle;
+  private double steer = 0;
+
   /** Creates a new TurnToTarget. */
   public TurnToTarget(Drivetrain m_drive, Limelight m_lime) {
-    super(
-        // The controller that the command will use
-        new PIDController(.1, 0, 0.01),
-        // This should return the measurement
-        () -> m_drive.navx.getAngle(),
-        // This should return the setpoint (can also be a constant)
-        () -> Constants.tx.getDouble(0.0),
-        // This uses the output
-        output -> {
-          m_drive.arcadeDrive(0, output);
-        });
-    addRequirements(m_drive);
-    getController().setTolerance(.5);
     // Use addRequirements() here to declare subsystem dependencies.
-    // Configure additional PID options by calling `getController` here.
+    //addRequirements(m_drive);
+    addRequirements(m_lime);
+    this.m_drive = m_drive;
+    this.m_lime = m_lime;
+    shuffleboardInit();
   }
+
+  // Called when the command is initially scheduled.
+  @Override
+  public void initialize() {}
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
+    kP = setP.getDouble(-.1);
+    kI = setI.getDouble(0);
+    kD = setD.getDouble(0);
+    minThreshold = setMin.getDouble(0.05);
+    error = angle.getDouble(0);
+    steer = 0;
+
+    if(Constants.tx.getDouble(0) > 1.0){
+      steer = (kP * error) - minThreshold; 
+    }else if(Constants.tx.getDouble(0) < 1.0){
+      steer = (kP * error) + minThreshold;
+    }
+
+    m_drive.arcadeDrive(0, steer);
+  }
+
+  // Called once the command ends or is interrupted.
+  @Override
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return getController().atSetpoint();
+    return steer < Math.abs(minThreshold);
+  }
+
+  private void shuffleboardInit(){
+    tab = Shuffleboard.getTab("Limelight");
+    setMin = tab.add("Min Threshold", 0.05).getEntry();
+    setP = tab.addPersistent("P", 6e-6).getEntry();
+    setI = tab.addPersistent("I", 4e-7).getEntry();
+    setD = tab.addPersistent("D", 7e-6).getEntry();
+    angle = tab.add("Curr Angle", m_drive.navx.getAngle()).getEntry();
   }
 }
