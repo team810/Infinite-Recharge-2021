@@ -27,7 +27,8 @@ public class Limelight extends SubsystemBase {
   
   double validTarget = Constants.tv.getDouble(0.0);
 
-  
+  Servo m_servo = new Servo(Constants.SERVO);
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("'Distance'", getAngle());
@@ -98,5 +99,23 @@ public class Limelight extends SubsystemBase {
 
   public double getAngle(){
     return Constants.ty.getDouble(0.0);
+  }
+
+  public double getDistanceDegreesLegacy(){
+    double dist = -1;
+    dist = (Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT) 
+            / (Math.toDegrees(Math.tan(Math.toRadians(Constants.LIMELIGHT_ANGLE) + Math.toRadians(Constants.ty.getDouble(0.0))))
+            );
+
+    return dist;
+  }
+
+  public double getDistanceDegrees(){
+    double dist = -1;
+    dist = (Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT) 
+            / (Math.toDegrees(Math.tan(Math.toRadians(m_servo.getAngle()) + Math.toRadians(Constants.ty.getDouble(0.0))))
+            );
+
+    return dist;
   }
 }

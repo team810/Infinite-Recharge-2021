@@ -30,10 +30,12 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.TurnToTarget;
 import frc.robot.commands.shoot;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Feed;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterSystem;
 
 /**
@@ -49,12 +51,12 @@ public class RobotContainer {
   private final ShooterSystem m_shoot = new ShooterSystem();
   private final Feed m_feed = new Feed();
   private final Intake m_intake = new Intake();
-  
+  private final Limelight m_lime = new Limelight();
+
   private final Joystick left = new Joystick(0);
   private final Joystick right = new Joystick(1);
   
-  private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun;
-
+  private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun, turnTarget;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -102,10 +104,13 @@ public class RobotContainer {
       switchShoot.whenPressed(new InstantCommand(()->m_shoot.toggleSol(m_shoot.shooterSOL), m_shoot));
 
     intakeRun = new JoystickButton(left, 4);
-      intakeRun.whileHeld(new StartEndCommand(() -> m_intake.runIntake(-.25), ()-> m_intake.runIntake(0), m_intake));
+      intakeRun.whileHeld(new StartEndCommand(() -> m_intake.runIntake(-.5), ()-> m_intake.runIntake(0), m_intake));
 
     feedRun = new JoystickButton(left, 5);
       feedRun.whileHeld(new StartEndCommand(() -> m_feed.runFeed(1), ()-> m_feed.runFeed(0), m_feed));
+
+    turnTarget = new JoystickButton(right, 1);
+      turnTarget.whileHeld(new TurnToTarget(m_drive, m_lime));
   }
 
   /**

@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -35,10 +36,8 @@ public class Drivetrain extends SubsystemBase {
   public final CANSparkMax back_L =  new CANSparkMax(Constants.BACKL, MotorType.kBrushless);
   public final CANSparkMax back_R = new CANSparkMax(Constants.BACKR, MotorType.kBrushless);
 
-  private final SparkMaxControllerGroup left = new SparkMaxControllerGroup("left", front_L, back_L);
-  private final SparkMaxControllerGroup right = new SparkMaxControllerGroup("right", front_R, back_R);
-
-  private final DifferentialDrive drive = new DifferentialDrive(left.getMasterMotor(), right.getMasterMotor());
+    
+  private final DifferentialDrive drive = new DifferentialDrive(front_L, front_R);
 
   public final AHRS navx = new AHRS(SPI.Port.kMXP); // change to I2C if not working
   
@@ -58,11 +57,19 @@ public class Drivetrain extends SubsystemBase {
     back_R.restoreFactoryDefaults();
     front_R.restoreFactoryDefaults();
     front_L.restoreFactoryDefaults();
+    
+    if(front_L.follow(back_L) != CANError.kOk){
+      System.out.println("FRONTL FOLLOW BACKL FAILED");
+    }
+    if(back_R.follow(front_R) != CANError.kOk){
+      System.out.println("FRONTR FOLLOW BACKR FAILED");
+    }
 
     m_drivetrainSim = new DifferentialDrivetrainSim(
       Constants.kDrivetrainPlant, DCMotor.getNEO(2), 12.75, 
       Constants.TRACK_WIDTH_METERS, Constants.RADIUS, 
-      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005));
+      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
+    );
 
     //set conversion factors
     front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
@@ -81,12 +88,15 @@ public class Drivetrain extends SubsystemBase {
     );
     SmartDashboard.putNumber("Velocity", front_L.getEncoder().getVelocity());
     SmartDashboard.putNumber("Heading", navx.getRotation2d().getDegrees());
+
+    System.out.println("VOLTAGE TO CONTROLLER: " + front_L.getAppliedOutput());
+    System.out.println("VOLTAGE TO MOTOR: " + front_L.getBusVoltage());
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
-    left.set(leftSpeed);
-    right.set(rightSpeed);
-    //drive.tankDrive(-leftSpeed, -rightSpeed);
+    //front_L.set(-leftSpeed);
+    //front_R.set(-rightSpeed);
+    drive.tankDrive(-leftSpeed, -rightSpeed);
   }
 
   public void resetEncoders(){
