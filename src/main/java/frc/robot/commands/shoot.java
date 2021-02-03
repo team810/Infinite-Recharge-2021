@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.CANPIDController;
 import com.revrobotics.ControlType;
 
@@ -23,7 +25,8 @@ public class shoot extends CommandBase {
     maxVel, maxAcc;
   int smartMotionSlot;
   ShuffleboardTab tab;
-  private NetworkTableEntry setSpeed, setP, setI, setD, speed;
+  private BooleanSupplier cShoot = ()->false;
+  private NetworkTableEntry setSpeed, setP, setI, setD, speed, canShoot;
 
   public shoot(ShooterSystem m_shoot) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -46,18 +49,18 @@ public class shoot extends CommandBase {
     kFF = 0.000156; 
     kMaxOutput = 1; 
     kMinOutput = -1;
-    maxRPM = 5600;
+    maxRPM = 5700;
 
     // Smart Motion Coefficients
-    maxVel = 2000; // rpm
-    maxAcc = 1500;
+    maxVel = 5700; // rpm
+    maxAcc = 2000;
 
     // set PID coefficients
     smartMotionSlot = 0;
     m_pidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
     m_pidController.setSmartMotionMinOutputVelocity(0, smartMotionSlot);
     m_pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
-    m_pidController.setSmartMotionAllowedClosedLoopError(10, smartMotionSlot);
+    m_pidController.setSmartMotionAllowedClosedLoopError(5, smartMotionSlot);
 
     
   }
@@ -83,6 +86,13 @@ public class shoot extends CommandBase {
     processVariable = m_shoot.getShooter().getEncoder().getVelocity();
     //SmartDashboard.putNumber("Shooter Speed", processVariable);
     speed.setDouble(processVariable);
+
+    if(processVariable < (setPoint + 100) && processVariable > (setPoint - 100)){
+      cShoot = ()-> true;
+    }else{
+      cShoot = ()-> false;
+    }
+    canShoot.setBoolean(cShoot.getAsBoolean());
   }
 
   // Called once the command ends or is interrupted.
@@ -105,5 +115,6 @@ public class shoot extends CommandBase {
     setP = tab.addPersistent("P", 6e-6).getEntry();
     setI = tab.addPersistent("I", 4e-7).getEntry();
     setD = tab.addPersistent("D", 7e-6).getEntry();
+    canShoot = tab.add("Shoot?", cShoot.getAsBoolean()).getEntry();
   }
 }
