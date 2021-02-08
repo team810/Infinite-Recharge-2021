@@ -91,9 +91,14 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
-    //front_L.set(-leftSpeed);
-    //front_R.set(-rightSpeed);
-    drive.tankDrive(-leftSpeed, -rightSpeed);
+    if(Math.abs(leftSpeed) < .1){
+      leftSpeed = 0;
+    }
+    if(Math.abs(rightSpeed) < .1){
+      rightSpeed = 0;
+    }
+    front_L.set(leftSpeed);
+    front_R.set(rightSpeed);
   }
 
   public void resetEncoders(){
