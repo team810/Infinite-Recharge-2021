@@ -42,9 +42,9 @@ public class shoot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    kP = 6e-6; 
-    kI = 4e-7;
-    kD = 7e-6; 
+    kP = 0.000001; 
+    kI = 0.00000009;
+    kD = 0.0002; 
     kIz = 0; 
     kFF = 0.000156; 
     kMaxOutput = 1; 
@@ -68,9 +68,9 @@ public class shoot extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    kP = setP.getDouble(6e-6); 
-    kI = setI.getDouble(4e-7);
-    kD = setD.getDouble(7e-6); 
+    kP = setP.getDouble(0.000001); 
+    kI = setI.getDouble(0.00000009);
+    kD = setD.getDouble(0.0002); 
 
     m_pidController.setP(kP);
     m_pidController.setI(kI);
@@ -111,10 +111,11 @@ public class shoot extends CommandBase {
     ShuffleboardTab tab = Shuffleboard.getTab("Shooter System");
     Shuffleboard.selectTab("Shooter System");
     setSpeed = tab.add("Set Speed", 5000).getEntry();
-    setSpeed = tab.add("Speed", 0).getEntry();
-    setP = tab.addPersistent("P", 6e-6).getEntry();
-    setI = tab.addPersistent("I", 4e-7).getEntry();
-    setD = tab.addPersistent("D", 7e-6).getEntry();
+    speed = tab.add("Speed", 0).getEntry();
+    setP = tab.addPersistent("P", 0.000001).getEntry();
+    setI = tab.addPersistent("I", 0.00000009).getEntry();
+    setD = tab.addPersistent("D", 0.0002).getEntry();
     canShoot = tab.add("Shoot?", cShoot.getAsBoolean()).getEntry();
+    //speed = tab.add("S", 0).getEntry();
   }
 }
