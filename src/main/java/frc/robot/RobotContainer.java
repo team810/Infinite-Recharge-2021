@@ -97,7 +97,7 @@ public class RobotContainer {
     //shootRun = new JoystickButton(left, 1);
     //  shootRun.whileHeld(new bangBang(m_shoot, 1000));
 
-    intakeOut = new JoystickButton(left, 6);
+    intakeOut = new JoystickButton(left, 2);
       intakeOut.whenPressed(new InstantCommand(()->m_intake.toggleSol(m_intake.intakeSOL), m_intake));
 
     switchShoot = new JoystickButton(left, 3);
@@ -106,13 +106,14 @@ public class RobotContainer {
     intakeRun = new JoystickButton(left, 4);
       intakeRun.whileHeld(new StartEndCommand(() -> m_intake.runIntake(-.5), ()-> m_intake.runIntake(0), m_intake));
 
-    feedRun = new JoystickButton(left, 5);
+    feedRun = new JoystickButton(right, 1);
       feedRun.whileHeld(new StartEndCommand(() -> m_feed.runFeed(1), ()-> m_feed.runFeed(0), m_feed));
 
-    turnTarget = new JoystickButton(right, 1);
+    turnTarget = new JoystickButton(right, 2);
       turnTarget.whileHeld(new TurnToTarget(m_drive, m_lime));
-    setLeft = new JoystickButton(right, 14);
-      setLeft.whileHeld(new StartEndCommand(()->m_drive.set(m_drive.front_L, .15), ()->m_drive.set(m_drive.front_L, 0), m_drive));
+
+    //setLeft = new JoystickButton(right, 14);
+    //  setLeft.whileHeld(new StartEndCommand(()->m_drive.set(m_drive.front_L, .15), ()->m_drive.set(m_drive.front_L, 0), m_drive));
   }
 
   /**
@@ -128,7 +129,7 @@ public class RobotContainer {
                                        Constants.kvVoltSecondsPerMeter,
                                        Constants.kaVoltSecondsSquaredPerMeter),
             m_drive.m_kinematics,
-            5);
+            3);
 
     // Create config for trajectory
     TrajectoryConfig config =
@@ -145,8 +146,8 @@ public class RobotContainer {
         new Pose2d(0, 0, new Rotation2d(0)),
         // Pass through these two interior waypoints, making an 's' curve path
         List.of(
-            new Translation2d(1, 1)
-            //new Translation2d(2, -1)
+            new Translation2d(1, 1),
+            new Translation2d(2, -1)
         ),
         // End 3 meters straight ahead of where we started, facing forward
         new Pose2d(3, 0, new Rotation2d(0)),

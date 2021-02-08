@@ -92,8 +92,8 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Velocity", back_L.getEncoder().getVelocity());
     SmartDashboard.putNumber("Heading", navx.getRotation2d().getDegrees());
 
-    System.out.println("VOLTAGE TO CONTROLLER: " + back_L.getAppliedOutput());
-    System.out.println("VOLTAGE TO MOTOR: " + front_L.getBusVoltage());
+    //System.out.println("VOLTAGE TO CONTROLLER: " + back_L.getAppliedOutput());
+    //System.out.println("VOLTAGE TO MOTOR: " + front_L.getBusVoltage());
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
@@ -127,9 +127,11 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    front_R.setVoltage(rightVolts);
-    front_L.setVoltage(leftVolts);
-    drive.feed();
+    front_L.set(leftVolts/12);
+    front_R.set(rightVolts/12);
+    //front_R.setVoltage(-rightVolts);
+    //front_L.setVoltage(-leftVolts);
+    //drive.feed();
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
