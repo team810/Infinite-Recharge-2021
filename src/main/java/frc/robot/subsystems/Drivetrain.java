@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.ExternalFollower;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.SPI;
@@ -54,13 +56,17 @@ public class Drivetrain extends SubsystemBase {
     back_R.restoreFactoryDefaults();
     front_R.restoreFactoryDefaults();
     front_L.restoreFactoryDefaults();
-    
-    if(front_L.follow(back_L) != CANError.kOk){
+
+    if(back_L.follow(front_L) != CANError.kOk){
       System.out.println("FRONTL FOLLOW BACKL FAILED");
     }
     if(back_R.follow(front_R) != CANError.kOk){
       System.out.println("FRONTR FOLLOW BACKR FAILED");
     }
+
+    //If you remove this, it doesnt work. We dont know why
+    front_L.follow(ExternalFollower.kFollowerDisabled, 0);
+    back_L.follow(front_L);
 
     m_drivetrainSim = new DifferentialDrivetrainSim(
       Constants.kDrivetrainPlant, DCMotor.getNEO(2), 12.75, 
@@ -83,14 +89,21 @@ public class Drivetrain extends SubsystemBase {
       navx.getRotation2d(), getLeftEncoderPos(),
       getRightEncoderPos()
     );
-    SmartDashboard.putNumber("Velocity", front_L.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Velocity", back_L.getEncoder().getVelocity());
     SmartDashboard.putNumber("Heading", navx.getRotation2d().getDegrees());
 
-    System.out.println("VOLTAGE TO CONTROLLER: " + front_L.getAppliedOutput());
+    System.out.println("VOLTAGE TO CONTROLLER: " + back_L.getAppliedOutput());
     System.out.println("VOLTAGE TO MOTOR: " + front_L.getBusVoltage());
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
+    if(Math.abs(leftSpeed) < .1){
+      leftSpeed = 0;
+    }
+    if(Math.abs(rightSpeed) < .1){
+      rightSpeed = 0;
+    }
+    
     //front_L.set(-leftSpeed);
     //front_R.set(-rightSpeed);
     drive.tankDrive(-leftSpeed, -rightSpeed);
@@ -132,4 +145,8 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getDrawnCurrentAmps(){ return m_drivetrainSim.getCurrentDrawAmps();}
+
+  public void set(CANSparkMax s, double speed){
+    s.set(speed);
+  }
 }

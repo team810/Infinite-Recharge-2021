@@ -56,7 +56,7 @@ public class RobotContainer {
   private final Joystick left = new Joystick(0);
   private final Joystick right = new Joystick(1);
   
-  private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun, turnTarget;
+  private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun, turnTarget, setLeft;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
@@ -111,6 +111,8 @@ public class RobotContainer {
 
     turnTarget = new JoystickButton(right, 1);
       turnTarget.whileHeld(new TurnToTarget(m_drive, m_lime));
+    setLeft = new JoystickButton(right, 14);
+      setLeft.whileHeld(new StartEndCommand(()->m_drive.set(m_drive.front_L, .15), ()->m_drive.set(m_drive.front_L, 0), m_drive));
   }
 
   /**

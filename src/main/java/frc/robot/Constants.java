@@ -44,8 +44,8 @@ public final class Constants {
 
 
     //CANSPARKMAX
-	public static final int FRONTL = 3;
-	public static final int BACKL = 4;
+	public static final int FRONTL = 4;
+	public static final int BACKL = 3;
 	public static final int FRONTR = 1;
     public static final int BACKR = 2;
 
