@@ -8,15 +8,17 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ExternalFollower;
-import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.system.plant.DCMotor;
@@ -35,7 +37,6 @@ public class Drivetrain extends SubsystemBase {
   public final CANSparkMax back_L =  new CANSparkMax(Constants.BACKL, MotorType.kBrushless);
   public final CANSparkMax back_R = new CANSparkMax(Constants.BACKR, MotorType.kBrushless);
 
-    
   private final DifferentialDrive drive = new DifferentialDrive(front_L, front_R);
 
   public final AHRS navx = new AHRS(SPI.Port.kMXP); // change to I2C if not working
@@ -49,6 +50,9 @@ public class Drivetrain extends SubsystemBase {
   public DifferentialDrivetrainSim m_drivetrainSim;
 
   //public EncoderSim m_leftEncoderSim = front_L.getEncoder();
+
+  private ShuffleboardTab tab;
+  private NetworkTableEntry rightVel, leftVel, leftPos, rightPos, heading;
 
   public Drivetrain() {
     drive.setSafetyEnabled(false);
@@ -78,8 +82,11 @@ public class Drivetrain extends SubsystemBase {
     front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
     front_R.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
 
-    front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
-    front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
+    front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / 60.0);
+    front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / 60.0);
+
+    //init shuffleboard for auton debugging
+    shuffleboardInit();
   }
 
   @Override
@@ -89,11 +96,15 @@ public class Drivetrain extends SubsystemBase {
       navx.getRotation2d(), getLeftEncoderPos(),
       getRightEncoderPos()
     );
-    SmartDashboard.putNumber("Velocity", back_L.getEncoder().getVelocity());
+    SmartDashboard.putNumber("Velocity", front_L.getEncoder().getVelocity());
     SmartDashboard.putNumber("Heading", navx.getRotation2d().getDegrees());
 
-    //System.out.println("VOLTAGE TO CONTROLLER: " + back_L.getAppliedOutput());
-    //System.out.println("VOLTAGE TO MOTOR: " + front_L.getBusVoltage());
+    //update shuffleboard 
+    rightVel.setNumber(front_R.getEncoder().getVelocity());
+    leftVel.setNumber(front_L.getEncoder().getVelocity());
+    rightPos.setNumber(front_R.getEncoder().getPosition());
+    leftPos.setNumber(front_L.getEncoder().getPosition());
+    heading.setNumber(navx.getRotation2d().getDegrees());
   }
 
   public void tankDrive(double leftSpeed, double rightSpeed){
@@ -103,9 +114,6 @@ public class Drivetrain extends SubsystemBase {
     if(Math.abs(rightSpeed) < .1){
       rightSpeed = 0;
     }
-    
-    //front_L.set(-leftSpeed);
-    //front_R.set(-rightSpeed);
     drive.tankDrive(-leftSpeed, -rightSpeed);
   }
 
@@ -127,11 +135,9 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    front_L.set(leftVolts/12);
-    front_R.set(rightVolts/12);
-    //front_R.setVoltage(-rightVolts);
-    //front_L.setVoltage(-leftVolts);
-    //drive.feed();
+    front_R.setVoltage(-rightVolts);
+    front_L.setVoltage(-leftVolts);
+    drive.feed();
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
@@ -146,9 +152,22 @@ public class Drivetrain extends SubsystemBase {
     drive.arcadeDrive(speed, rot);
   }
 
-  public double getDrawnCurrentAmps(){ return m_drivetrainSim.getCurrentDrawAmps();}
+  public double getDrawnCurrentAmps(){
+     return m_drivetrainSim.getCurrentDrawAmps();
+    }
 
   public void set(CANSparkMax s, double speed){
     s.set(speed);
+  }
+
+  private void shuffleboardInit(){
+    tab = Shuffleboard.getTab("Drivetrain");
+    Shuffleboard.selectTab("Drivetrain");
+
+    rightVel = tab.add("Right Velocity", 0).getEntry();
+    leftVel = tab.add("Left Velocity", 0).getEntry();
+    rightPos = tab.add("Right Pos", 0).getEntry();
+    leftPos = tab.add("Left Pos", 0).getEntry();
+    heading = tab.add("Heading", 0).getEntry();
   }
 }

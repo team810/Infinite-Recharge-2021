@@ -116,6 +116,5 @@ public class shoot extends CommandBase {
     setI = tab.addPersistent("I", 0.00000009).getEntry();
     setD = tab.addPersistent("D", 0.0002).getEntry();
     canShoot = tab.add("Shoot?", cShoot.getAsBoolean()).getEntry();
-    //speed = tab.add("S", 0).getEntry();
   }
 }

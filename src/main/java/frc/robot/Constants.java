@@ -54,10 +54,13 @@ public final class Constants {
     public static final int FEED_MOTOR = 7;
     public static final int INTAKE_MOTOR = 5;
     public static final int SERVO_MOTOR = 1;
-    
-    public static final double RADIUS = 7.56 / 2.0;
 
-    public static final double CIRCUMFERENCE = Math.PI * 2.0 * RADIUS;
+    public static final double GEAR_RATIO = 12.75;
+    public static final double WHEEL_DIAMETER = 7.56;
+
+    public static final double RADIUS = WHEEL_DIAMETER / 2.0;
+
+    public static final double CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
 
     //DOUBLE SOLENOIDS
     public static final int INTAKE_FORWARD = 4;
@@ -85,8 +88,6 @@ public final class Constants {
     public static final NetworkTableEntry pipeline = table.getEntry("pipeline");
     public static final NetworkTableEntry stream = table.getEntry("stream");
     
-    public static final double GEAR_RATIO = 12.75;
-    public static final double WHEEL_DIAMETER = 7.56;
 
     //AUTONOMOUS
     public static final double ksVolts = 0.178;
