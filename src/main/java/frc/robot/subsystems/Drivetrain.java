@@ -79,11 +79,11 @@ public class Drivetrain extends SubsystemBase {
     );
 
     //set conversion factors
-    front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
-    front_R.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
+    //front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
+    //front_R.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
 
-    front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / 60.0);
-    front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / 60.0);
+    //front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / 60.0);
+    //front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / 60.0);
 
     //init shuffleboard for auton debugging
     shuffleboardInit();
@@ -102,8 +102,10 @@ public class Drivetrain extends SubsystemBase {
     //update shuffleboard 
     rightVel.setNumber(front_R.getEncoder().getVelocity());
     leftVel.setNumber(front_L.getEncoder().getVelocity());
-    rightPos.setNumber(getRightEncoderPos());
-    leftPos.setNumber(getLeftEncoderPos());
+    rightPos.setNumber(front_R.getEncoder().getPosition());
+    leftPos.setNumber(front_L.getEncoder().getPosition());
+    //rightPos.setNumber(getRightEncoderPos());
+    //leftPos.setNumber(getLeftEncoderPos());
     heading.setNumber(navx.getRotation2d().getDegrees());
   }
 

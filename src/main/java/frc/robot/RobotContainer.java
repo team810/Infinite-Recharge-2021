@@ -87,7 +87,7 @@ public class RobotContainer {
                                        Constants.kvVoltSecondsPerMeter,
                                        Constants.kaVoltSecondsSquaredPerMeter),
             m_drive.m_kinematics,
-            3);
+            10);
 
     // Create config for trajectory
     TrajectoryConfig config =
@@ -114,6 +114,8 @@ public class RobotContainer {
     );
 
     String trajectoryJSON = "paths/Unnamed.wpilib.json";
+
+
     Trajectory trajectory = new Trajectory();
     try {
       Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
