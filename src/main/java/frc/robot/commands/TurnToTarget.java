@@ -51,6 +51,10 @@ public class TurnToTarget extends CommandBase {
     }
     str.setNumber(steer);
     m_drive.arcadeDrive(0, steer);
+
+
+    angle.setNumber(m_drive.navx.getAngle());
+    str.setNumber(steer);
   }
 
   // Called once the command ends or is interrupted.
