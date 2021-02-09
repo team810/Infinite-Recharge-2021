@@ -102,8 +102,8 @@ public class Drivetrain extends SubsystemBase {
     //update shuffleboard 
     rightVel.setNumber(front_R.getEncoder().getVelocity());
     leftVel.setNumber(front_L.getEncoder().getVelocity());
-    rightPos.setNumber(front_R.getEncoder().getPosition());
-    leftPos.setNumber(front_L.getEncoder().getPosition());
+    rightPos.setNumber(getRightEncoderPos());
+    leftPos.setNumber(getLeftEncoderPos());
     heading.setNumber(navx.getRotation2d().getDegrees());
   }
 
