@@ -44,8 +44,8 @@ public final class Constants {
 
 
     //CANSPARKMAX
-	public static final int FRONTL = 4;
-	public static final int BACKL = 3;
+	public static final int FRONTL = 3;
+	public static final int BACKL = 4;
 	public static final int FRONTR = 1;
     public static final int BACKR = 2;
 
@@ -119,7 +119,7 @@ public final class Constants {
 	public static final int TARGET_HEIGHT = 0;
 	public static final int LIMELIGHT_HEIGHT = 0;
 	public static final double LIMELIGHT_ANGLE = 0;
-    public static final int SERVO = 0;
+    public static final int SERVO = 1;
     
     //PID
     //  SHOOTER

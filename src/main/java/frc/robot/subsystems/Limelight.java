@@ -23,16 +23,17 @@ public class Limelight extends SubsystemBase {
   NetworkTableEntry pipeline = Constants.pipeline;
   public NetworkTableEntry stream = Constants.stream;
 
-  Servo mover = new Servo(Constants.SERVO_MOTOR);
+  //Servo mover = new Servo(Constants.SERVO_MOTOR);
   
   double validTarget = Constants.tv.getDouble(0.0);
 
-  Servo m_servo = new Servo(Constants.SERVO);
+  Servo m_servo = new Servo(2);
 
   @Override
   public void periodic() {
     SmartDashboard.putNumber("'Distance'", getAngle());
     SmartDashboard.putNumber("TY", Constants.ty.getDouble(0.0));
+    //changeAngle(.5);
   }
 
   /**
@@ -117,5 +118,14 @@ public class Limelight extends SubsystemBase {
             );
 
     return dist;
+  }
+
+  public void changeAngle(double angle){
+    SmartDashboard.putNumber("S.P", m_servo.getAngle());
+    SmartDashboard.getNumber("S.A", 0);
+    //System.out.println(angle);
+    System.out.println(m_servo.getPosition());
+    //m_servo.set(angle);
+    m_servo.setAngle(angle);
   }
 }

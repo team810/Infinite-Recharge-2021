@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.Servo;
 import frc.robot.commands.TurnToTarget;
 import frc.robot.commands.shoot;
 import frc.robot.subsystems.Drivetrain;
@@ -46,7 +47,7 @@ public class RobotContainer {
   private final Joystick left = new Joystick(0);
   private final Joystick right = new Joystick(1);
   
-  private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun, turnTarget;
+  private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun, turnTarget, servoTest;
 
   public RobotContainer() {
     configureButtonBindings();
@@ -77,6 +78,9 @@ public class RobotContainer {
 
     turnTarget = new JoystickButton(right, 2);
       turnTarget.whileHeld(new TurnToTarget(m_drive, m_lime));
+    
+      servoTest = new JoystickButton(right, 3);
+      servoTest.whileHeld((new Servo(m_lime)));
   }
 
   public Command getAutonomousCommand() {
