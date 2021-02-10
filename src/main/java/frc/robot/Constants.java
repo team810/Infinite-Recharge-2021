@@ -44,8 +44,8 @@ public final class Constants {
 
 
     //CANSPARKMAX
-	public static final int FRONTL = 3;
-	public static final int BACKL = 4;
+	public static final int FRONTL = 4;
+	public static final int BACKL = 3;
 	public static final int FRONTR = 1;
     public static final int BACKR = 2;
 
@@ -54,10 +54,13 @@ public final class Constants {
     public static final int FEED_MOTOR = 7;
     public static final int INTAKE_MOTOR = 5;
     public static final int SERVO_MOTOR = 1;
-    
-    public static final double RADIUS = 7.56 / 2.0;
 
-    public static final double CIRCUMFERENCE = Math.PI * 2.0 * RADIUS;
+    public static final double GEAR_RATIO = 12.75;
+    public static final double WHEEL_DIAMETER = 7.56;
+
+    public static final double RADIUS = WHEEL_DIAMETER / 2.0;
+
+    public static final double CIRCUMFERENCE = Math.PI * WHEEL_DIAMETER;
 
     //DOUBLE SOLENOIDS
     public static final int INTAKE_FORWARD = 4;
@@ -72,7 +75,7 @@ public final class Constants {
     
     public static final int ULTRASONIC = 0;
 
-    public static final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight-bulls");
+    public static final NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
         
     public static final NetworkTableEntry tx = table.getEntry("tx");
     public static final NetworkTableEntry ty = table.getEntry("ty");
@@ -85,8 +88,6 @@ public final class Constants {
     public static final NetworkTableEntry pipeline = table.getEntry("pipeline");
     public static final NetworkTableEntry stream = table.getEntry("stream");
     
-    public static final double GEAR_RATIO = 12.75;
-    public static final double WHEEL_DIAMETER = 7.56;
 
     //AUTONOMOUS
     public static final double ksVolts = 0.178;
@@ -118,5 +119,12 @@ public final class Constants {
 	public static final int TARGET_HEIGHT = 0;
 	public static final int LIMELIGHT_HEIGHT = 0;
 	public static final double LIMELIGHT_ANGLE = 0;
-	public static final int SERVO = 0;
+    public static final int SERVO = 0;
+    
+    //PID
+    //  SHOOTER
+    public static final double kPShooter = 0.00002; //0.00002
+    public static final double kIShooter = 0.00000000015; //0.00000000015
+    public static final double kDShooter = 0; //0
+    public static final double kFShooter = 0.00000481; //0.00000481
 }

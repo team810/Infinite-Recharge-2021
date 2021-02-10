@@ -17,7 +17,7 @@ public class TurnToTarget extends CommandBase {
   private Limelight m_lime;
   private double kP, kI, kD, minThreshold, error;
   ShuffleboardTab tab;
-  private NetworkTableEntry setMin, setP, setI, setD, angle;
+  private NetworkTableEntry setMin, setP, setI, setD, angle, str;
   private double steer = 0;
 
   /** Creates a new TurnToTarget. */
@@ -49,8 +49,12 @@ public class TurnToTarget extends CommandBase {
     }else if(Constants.tx.getDouble(0) < 1.0){
       steer = (kP * error) + minThreshold;
     }
-
+    str.setNumber(steer);
     m_drive.arcadeDrive(0, steer);
+
+
+    angle.setNumber(m_drive.navx.getAngle());
+    str.setNumber(steer);
   }
 
   // Called once the command ends or is interrupted.
@@ -72,5 +76,6 @@ public class TurnToTarget extends CommandBase {
     setI = tab.addPersistent("I", 4e-7).getEntry();
     setD = tab.addPersistent("D", 7e-6).getEntry();
     angle = tab.add("Curr Angle", m_drive.navx.getAngle()).getEntry();
+    str = tab.add("Curr Steer", steer).getEntry();
   }
 }
