@@ -82,11 +82,10 @@ public class Drivetrain extends SubsystemBase {
     );
 
     //set conversion factors
-    //front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
-    //front_R.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE));
-
-    front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / (60.0 * 12.75));
-    front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / 60.0);
+    front_L.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / Constants.GEAR_RATIO);
+    front_R.getEncoder().setPositionConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / Constants.GEAR_RATIO);
+    front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / (60.0 * Constants.GEAR_RATIO));
+    front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / (60.0 * Constants.GEAR_RATIO));
 
     //init shuffleboard for auton debugging
     shuffleboardInit();
@@ -107,10 +106,11 @@ public class Drivetrain extends SubsystemBase {
     //update shuffleboard 
     rightVel.setNumber(front_R.getEncoder().getVelocity());
     leftVel.setNumber(front_L.getEncoder().getVelocity());
-    rightPos.setNumber(front_R.getEncoder().getPosition());
-    leftPos.setNumber(front_L.getEncoder().getPosition());
-    //rightPos.setNumber(getRightEncoderPos());
-    //leftPos.setNumber(getLeftEncoderPos());
+    //rightPos.setNumber(front_R.getEncoder().getPosition());
+    //leftPos.setNumber(front_L.getEncoder().getPosition());
+    rightPos.setNumber(getRightEncoderPos());
+    leftPos.setNumber(getLeftEncoderPos());
+
     heading.setNumber(navx.getRotation2d().getDegrees());
     
     ff = new SimpleMotorFeedforward(kSDrivetrain.getDouble(0), kVDrivetrain.getDouble(0), kADrivetrain.getDouble(0));
@@ -162,8 +162,8 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getDrawnCurrentAmps(){
-     return m_drivetrainSim.getCurrentDrawAmps();
-    }
+    return m_drivetrainSim.getCurrentDrawAmps();
+  }
 
   public void set(CANSparkMax s, double speed){
     s.set(speed);

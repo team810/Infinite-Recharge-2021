@@ -55,7 +55,7 @@ public final class Constants {
     public static final int INTAKE_MOTOR = 5;
     public static final int SERVO_MOTOR = 1;
 
-    public static final double GEAR_RATIO = 12.75;
+    public static final double GEAR_RATIO = 10.75;
     public static final double WHEEL_DIAMETER = 7.56;
 
     public static final double RADIUS = WHEEL_DIAMETER / 2.0;
@@ -90,24 +90,24 @@ public final class Constants {
     
 
     //AUTONOMOUS
-    public static final double ksVolts = 0.178;
-    public static final double kvVoltSecondsPerMeter = 2.73;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.43;
+    public static final double ksVolts = 0.164;
+    public static final double kvVoltSecondsPerMeter = 2.31;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.485;
 
-    public static final double kPDriveVel = 8.24;
+    public static final double kPDriveVel = 2.6;
 
     public static final double kMaxSpeedMetersPerSecond = 1;
     public static final double kMaxAccelerationMetersPerSecondSquared = 2;
 
-    public static final double kvVoltSecondsPerRadian = 2.74;
-    public static final double kaVoltSecondsSquaredPerRadian = 0.321;
+    public static final double kvVoltSecondsPerRadian = 2.31;
+    public static final double kaVoltSecondsSquaredPerRadian = 0.485;
 
     public static final double kRamseteB = 2; // dont change this and the val below
     public static final double kRamseteZeta = 0.7;
 
 
     //TRAJGEN
-    public static final double TRACK_WIDTH_METERS = 1.135908083891128;
+    public static final double TRACK_WIDTH_METERS = 1.3256274080966344;
 
     public static final LinearSystem<N2, N2, N2> kDrivetrainPlant = 
         LinearSystemId.identifyDrivetrainSystem(
@@ -124,7 +124,7 @@ public final class Constants {
     //PID
     //  SHOOTER
     public static final double kPShooter = 0.00002; //0.00002
-    public static final double kIShooter = 0.00000000015; //0.00000000015
+    public static final double kIShooter = 0.0000000003; //0.00000000015
     public static final double kDShooter = 0; //0
-    public static final double kFShooter = 0.00000481; //0.00000481
+    public static final double kFShooter = 0.00018; //0.00000481
 }

@@ -27,7 +27,7 @@ public class Limelight extends SubsystemBase {
   
   double validTarget = Constants.tv.getDouble(0.0);
 
-  Servo m_servo = new Servo(2);
+  public Servo m_servo = new Servo(2);
 
   @Override
   public void periodic() {
@@ -120,12 +120,4 @@ public class Limelight extends SubsystemBase {
     return dist;
   }
 
-  public void changeAngle(double angle){
-    SmartDashboard.putNumber("S.P", m_servo.getAngle());
-    SmartDashboard.getNumber("S.A", 0);
-    //System.out.println(angle);
-    System.out.println(m_servo.getPosition());
-    //m_servo.set(angle);
-    m_servo.setAngle(angle);
-  }
 }

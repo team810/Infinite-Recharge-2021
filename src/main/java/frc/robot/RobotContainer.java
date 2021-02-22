@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.Servo;
 import frc.robot.commands.TurnToTarget;
 import frc.robot.commands.shoot;
 import frc.robot.subsystems.Drivetrain;
@@ -80,7 +79,7 @@ public class RobotContainer {
       turnTarget.whileHeld(new TurnToTarget(m_drive, m_lime));
     
       servoTest = new JoystickButton(right, 3);
-      servoTest.whileHeld((new Servo(m_lime)));
+      servoTest.whileHeld(new StartEndCommand(()->m_lime.m_servo.setAngle(35),()-> m_lime.m_servo.setAngle(0), m_lime));
   }
 
   public Command getAutonomousCommand() {
@@ -148,7 +147,7 @@ public class RobotContainer {
     m_drive.resetOdometry(exampleTrajectory.getInitialPose());
 
     // Run path following command, then stop at the end.
-    //return ramseteCommand.andThen(() -> m_drive.tankDrive(0, 0));
-    return new RunCommand(()-> m_drive.tankDriveVolts(4, 4), m_drive).withTimeout(3);
+    return ramseteCommand.andThen(() -> m_drive.tankDrive(0, 0));
+    //return new RunCommand(()-> m_drive.tankDriveVolts(4, 4), m_drive).withTimeout(3);
   }
 }

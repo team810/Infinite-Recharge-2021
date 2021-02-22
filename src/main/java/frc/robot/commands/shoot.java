@@ -60,10 +60,10 @@ public class shoot extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    kP = setP.getDouble(0); 
-    kI = setI.getDouble(0);
-    kD = setD.getDouble(0); 
-    kFF = setF.getDouble(0);
+    kP = setP.getDouble(Constants.kPShooter); 
+    kI = setI.getDouble(Constants.kIShooter);
+    kD = setD.getDouble(Constants.kDShooter); 
+    kFF = setF.getDouble(Constants.kFShooter);
     m_pidController.setP(kP);
     m_pidController.setI(kI);
     m_pidController.setD(kD);
