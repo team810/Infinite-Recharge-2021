@@ -116,7 +116,7 @@ public class RobotContainer {
         config
     );
 
-    String trajectoryJSON = "paths/Unnamed.wpilib.json";
+    String trajectoryJSON = "paths/Slalom.wpilib.json";
 
 
     Trajectory trajectory = new Trajectory();
@@ -128,7 +128,7 @@ public class RobotContainer {
     }
 
     RamseteCommand ramseteCommand = new RamseteCommand(
-        exampleTrajectory,
+        trajectory,
         m_drive::getPose,
         new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
         new SimpleMotorFeedforward(Constants.ksVolts,
@@ -144,7 +144,7 @@ public class RobotContainer {
     );
 
     // Reset odometry to the starting pose of the trajectory.
-    m_drive.resetOdometry(exampleTrajectory.getInitialPose());
+    m_drive.resetOdometry(trajectory.getInitialPose());
 
     // Run path following command, then stop at the end.
     return ramseteCommand.andThen(() -> m_drive.tankDrive(0, 0));
