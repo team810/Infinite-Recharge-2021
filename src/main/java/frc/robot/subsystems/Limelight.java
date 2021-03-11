@@ -7,8 +7,11 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -20,7 +23,7 @@ public class Limelight extends SubsystemBase {
 
   NetworkTableEntry ledMode = Constants.ledMode;
   NetworkTableEntry camMode = Constants.camMode;
-  NetworkTableEntry pipeline = Constants.pipeline;
+  public NetworkTableEntry pipeline = Constants.pipeline;
   public NetworkTableEntry stream = Constants.stream;
 
   //Servo mover = new Servo(Constants.SERVO_MOTOR);
@@ -29,6 +32,7 @@ public class Limelight extends SubsystemBase {
 
   public Servo m_servo = new Servo(2);
 
+  //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
   public void periodic() {
     SmartDashboard.putNumber("'Distance'", getAngle());
@@ -102,22 +106,25 @@ public class Limelight extends SubsystemBase {
     return Constants.ty.getDouble(0.0);
   }
 
-  public double getDistanceDegreesLegacy(){
-    double dist = -1;
-    dist = (Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT) 
-            / (Math.toDegrees(Math.tan(Math.toRadians(Constants.LIMELIGHT_ANGLE) + Math.toRadians(Constants.ty.getDouble(0.0))))
-            );
+  /*
+    PATH IDS: 
+    0: "paths/GalacticBlueA.wpilib.json",
+    1: "paths/GalacticBlueB.wpilib.json", 
+    2: "paths/GalacticRedA.wpilib.json", 
+    3: "paths/GalacticRedB.wpilib.json"
+  */
+  public int determinePath(){
+    NetworkTable ballTable = NetworkTableInstance.getDefault().getTable("Balls");
+    NetworkTableEntry positions = ballTable.getEntry("x");
+    
+    double[] xPos = positions.getDoubleArray(new double[0]);
 
-    return dist;
+    if(xPos[1] > xPos[0]){
+      return 2;
+    }else{
+      return 0;
+    }
+  
   }
-
-  public double getDistanceDegrees(){
-    double dist = -1;
-    dist = (Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT) 
-            / (Math.toDegrees(Math.tan(Math.toRadians(m_servo.getAngle()) + Math.toRadians(Constants.ty.getDouble(0.0))))
-            );
-
-    return dist;
-  }
-
+  
 }

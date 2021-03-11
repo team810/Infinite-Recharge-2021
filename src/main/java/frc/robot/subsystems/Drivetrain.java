@@ -8,6 +8,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANError;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ExternalFollower;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
@@ -43,7 +45,7 @@ public class Drivetrain extends SubsystemBase {
   public final AHRS navx = new AHRS(SPI.Port.kMXP); // change to I2C if not working
   
   private DifferentialDriveOdometry m_odometry =
-    new DifferentialDriveOdometry(navx.getRotation2d());
+    new DifferentialDriveOdometry(Rotation2d.fromDegrees(getHeading()));
   
   public DifferentialDriveKinematics m_kinematics =
     new DifferentialDriveKinematics(Constants.TRACK_WIDTH_METERS);
@@ -87,6 +89,8 @@ public class Drivetrain extends SubsystemBase {
     front_L.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / (60.0 * Constants.GEAR_RATIO));
     front_R.getEncoder().setVelocityConversionFactor(Units.inchesToMeters(Constants.CIRCUMFERENCE) / (60.0 * Constants.GEAR_RATIO));
 
+    front_R.setInverted(true);
+    back_R.setInverted(true);
     //init shuffleboard for auton debugging
     shuffleboardInit();
 
@@ -97,11 +101,11 @@ public class Drivetrain extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     m_odometry.update(
-      navx.getRotation2d(), getLeftEncoderPos(),
+      Rotation2d.fromDegrees(getHeading()), getLeftEncoderPos(),
       getRightEncoderPos()
     );
     SmartDashboard.putNumber("Velocity", front_L.getEncoder().getVelocity());
-    SmartDashboard.putNumber("Heading", navx.getRotation2d().getDegrees());
+    SmartDashboard.putNumber("Heading", getHeading());
 
     //update shuffleboard 
     rightVel.setNumber(front_R.getEncoder().getVelocity());
@@ -111,7 +115,7 @@ public class Drivetrain extends SubsystemBase {
     rightPos.setNumber(getRightEncoderPos());
     leftPos.setNumber(getLeftEncoderPos());
 
-    heading.setNumber(navx.getRotation2d().getDegrees());
+    heading.setNumber(getHeading());
     
     ff = new SimpleMotorFeedforward(kSDrivetrain.getDouble(0), kVDrivetrain.getDouble(0), kADrivetrain.getDouble(0));
   }
@@ -123,7 +127,8 @@ public class Drivetrain extends SubsystemBase {
     if(Math.abs(rightSpeed) < .1){
       rightSpeed = 0;
     }
-    drive.tankDrive(-leftSpeed, -rightSpeed);
+    //System.out.println(leftSpeed + " : " + rightSpeed);
+    drive.tankDrive(leftSpeed, rightSpeed);
   }
 
   public void resetEncoders(){
@@ -140,12 +145,13 @@ public class Drivetrain extends SubsystemBase {
 
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
-    m_odometry.resetPosition(pose, navx.getRotation2d());
+    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeading()));
   }
 
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    front_R.setVoltage(-rightVolts);
-    front_L.setVoltage(-leftVolts);
+    front_R.setVoltage(rightVolts);
+    front_L.setVoltage(leftVolts);
+    //System.out.println(leftVolts + " : " + rightVolts);
     drive.feed();
   }
 
@@ -181,5 +187,16 @@ public class Drivetrain extends SubsystemBase {
     kSDrivetrain = tab.addPersistent("kS", 0).getEntry();
     kVDrivetrain = tab.addPersistent("kV", 0).getEntry();
     kADrivetrain = tab.addPersistent("kA", 0).getEntry();
+  }
+
+  public double getHeading(){
+    return Math.IEEEremainder(navx.getAngle(), 360) * -1;
+  }
+
+  public void setIdleMode(IdleMode mode){
+    front_L.setIdleMode(mode);
+    front_R.setIdleMode(mode);
+    back_L.setIdleMode(mode);
+    back_R.setIdleMode(mode);
   }
 }

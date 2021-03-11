@@ -90,14 +90,14 @@ public final class Constants {
     
 
     //AUTONOMOUS
-    public static final double ksVolts = 0.164;
+    public static final double ksVolts = 0.185;
     public static final double kvVoltSecondsPerMeter = 2.31;
-    public static final double kaVoltSecondsSquaredPerMeter = 0.485;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.492;
 
     public static final double kPDriveVel = 2.6;
 
-    public static final double kMaxSpeedMetersPerSecond = 1;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 2;
+    public static final double kMaxSpeedMetersPerSecond = .1;
+    public static final double kMaxAccelerationMetersPerSecondSquared = .2;
 
     public static final double kvVoltSecondsPerRadian = 2.31;
     public static final double kaVoltSecondsSquaredPerRadian = 0.485;

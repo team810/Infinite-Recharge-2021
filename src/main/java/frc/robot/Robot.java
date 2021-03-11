@@ -4,12 +4,24 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import frc.robot.commands.Bounce;
+import frc.robot.subsystems.Drivetrain;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -22,6 +34,9 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  String[] bouncePaths = {"paths/Bounce1.wpilib.json", "paths/Bounce2.wpilib.json",
+                          "paths/Bounce3.wpilib.json", "paths/Bounce4.wpilib.json"};
+  RamseteCommand[] bouncePs = new RamseteCommand[4];
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -32,6 +47,21 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     DriverStation.getInstance().silenceJoystickConnectionWarning(true);
+    
+    String[] trajNames = m_robotContainer.trajNames;
+    RamseteCommand[] paths = m_robotContainer.paths;
+
+    for(int i = 0; i < trajNames.length; i++){
+      paths[i] = genCommand("paths/GalacticBlueA.wpilib.json");
+    }
+    m_robotContainer.paths = paths;
+    
+    for(int i = 0; i < bouncePaths.length; i++){
+      bouncePs[i] = genCommand(bouncePaths[i]);
+    }
+    m_robotContainer.bounce = new Bounce(bouncePs[0], bouncePs[1], bouncePs[2], bouncePs[3]);
+    m_robotContainer.barrelRoll = genCommand("paths/BarrelRoll.wpilib.json");
+    m_robotContainer.slalom = genCommand("paths/Slalom.wpilib.json");
   }
 
   /**
@@ -102,4 +132,32 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+  public RamseteCommand genCommand(String path){
+    String trajectoryJSON = path;
+
+      Trajectory trajectory = new Trajectory();
+      try {
+        Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+        trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+      } catch (IOException ex) {
+        DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+      }
+
+      return new RamseteCommand(
+        trajectory,
+          m_robotContainer.m_drive::getPose,
+          new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+          new SimpleMotorFeedforward(Constants.ksVolts,
+                                    Constants.kvVoltSecondsPerMeter,
+                                    Constants.kaVoltSecondsSquaredPerMeter),
+          m_robotContainer.m_drive.m_kinematics,
+          m_robotContainer.m_drive::getWheelSpeeds,
+          new PIDController(Constants.kPDriveVel, 0, 0),
+          new PIDController(Constants.kPDriveVel, 0, 0),
+          // RamseteCommand passes volts to the callback
+          m_robotContainer.m_drive::tankDriveVolts,
+          m_robotContainer.m_drive
+      );
+  }
 }
