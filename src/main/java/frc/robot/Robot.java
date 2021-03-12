@@ -52,16 +52,17 @@ public class Robot extends TimedRobot {
     RamseteCommand[] paths = m_robotContainer.paths;
 
     for(int i = 0; i < trajNames.length; i++){
-      paths[i] = genCommand("paths/GalacticBlueA.wpilib.json");
+      m_robotContainer.pathsTrajs[i] = genTraj("paths/GalacticBlueA.wpilib.json");
+      paths[i] = genCommand(m_robotContainer.pathsTrajs[i]);
     }
     m_robotContainer.paths = paths;
     
     for(int i = 0; i < bouncePaths.length; i++){
-      bouncePs[i] = genCommand(bouncePaths[i]);
+      bouncePs[i] = genCommand(genTraj(bouncePaths[i]));
     }
     m_robotContainer.bounce = new Bounce(bouncePs[0], bouncePs[1], bouncePs[2], bouncePs[3]);
-    m_robotContainer.barrelRoll = genCommand("paths/BarrelRoll.wpilib.json");
-    m_robotContainer.slalom = genCommand("paths/Slalom.wpilib.json");
+    m_robotContainer.barrelRoll = genCommand(genTraj("paths/BarrelRoll.wpilib.json"));
+    m_robotContainer.slalom = genCommand(genTraj("paths/Slalom.wpilib.json"));
   }
 
   /**
@@ -133,31 +134,32 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {}
 
-  public RamseteCommand genCommand(String path){
+  public Trajectory genTraj(String path){
     String trajectoryJSON = path;
-
-      Trajectory trajectory = new Trajectory();
+    Trajectory trajectory = new Trajectory();
       try {
         Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
         trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
       } catch (IOException ex) {
         DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
       }
-
-      return new RamseteCommand(
-        trajectory,
-          m_robotContainer.m_drive::getPose,
-          new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-          new SimpleMotorFeedforward(Constants.ksVolts,
-                                    Constants.kvVoltSecondsPerMeter,
-                                    Constants.kaVoltSecondsSquaredPerMeter),
-          m_robotContainer.m_drive.m_kinematics,
-          m_robotContainer.m_drive::getWheelSpeeds,
-          new PIDController(Constants.kPDriveVel, 0, 0),
-          new PIDController(Constants.kPDriveVel, 0, 0),
-          // RamseteCommand passes volts to the callback
-          m_robotContainer.m_drive::tankDriveVolts,
-          m_robotContainer.m_drive
-      );
+    return trajectory;
+  }
+  public RamseteCommand genCommand(Trajectory trajectory){
+    return new RamseteCommand(
+      trajectory,
+        m_robotContainer.m_drive::getPose,
+        new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
+        new SimpleMotorFeedforward(Constants.ksVolts,
+                                  Constants.kvVoltSecondsPerMeter,
+                                  Constants.kaVoltSecondsSquaredPerMeter),
+        m_robotContainer.m_drive.m_kinematics,
+        m_robotContainer.m_drive::getWheelSpeeds,
+        new PIDController(Constants.kPDriveVel, 0, 0),
+        new PIDController(Constants.kPDriveVel, 0, 0),
+        // RamseteCommand passes volts to the callback
+        m_robotContainer.m_drive::tankDriveVolts,
+        m_robotContainer.m_drive
+    );
   }
 }

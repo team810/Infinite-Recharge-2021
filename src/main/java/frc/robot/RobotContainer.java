@@ -45,6 +45,7 @@ public class RobotContainer {
   private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun, turnTarget, reset, resetE, servoTarget, servoBall;
 
   public RamseteCommand[] paths = new RamseteCommand[4];
+  public Trajectory[] pathsTrajs = new Trajectory[4];
   public String[] trajNames = {"paths/GalacticBlueA.wpilib.json",
                           "paths/GalacticBlueB.wpilib.json", "paths/GalacticRedA.wpilib.json", "paths/GalacticRedB.wpilib.json"};
   public Bounce bounce;
@@ -86,94 +87,15 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    // Create a voltage constraint to znsure we don't accelerate too fast
-    /*
-    var autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(Constants.ksVolts,
-                                       Constants.kvVoltSecondsPerMeter,
-                                       Constants.kaVoltSecondsSquaredPerMeter),
-            m_drive.m_kinematics,
-            10);
-
-    // Create config for trajectory
-    TrajectoryConfig config =
-        new TrajectoryConfig(Constants.kMaxSpeedMetersPerSecond,
-                             Constants.kMaxAccelerationMetersPerSecondSquared)
-            // Add kinematics to ensure max speed is actually obeyed
-            .setKinematics(m_drive.m_kinematics)
-            // Apply the voltage constraint
-            .addConstraint(autoVoltageConstraint);
-
-    String trajectoryJSON = "paths/Slalom.wpilib.json";
-
-
-    Trajectory trajectory = new Trajectory();
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }
-
-    RamseteCommand ramseteCommand = new RamseteCommand(
-      trajectory,
-        m_drive::getPose,
-        new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-        new SimpleMotorFeedforward(Constants.ksVolts,
-                                   Constants.kvVoltSecondsPerMeter,
-                                   Constants.kaVoltSecondsSquaredPerMeter),
-        m_drive.m_kinematics,
-        m_drive::getWheelSpeeds,
-        new PIDController(Constants.kPDriveVel, 0, 0),
-        new PIDController(Constants.kPDriveVel, 0, 0),
-        // RamseteCommand passes volts to the callback
-        m_drive::tankDriveVolts,
-        m_drive
-    );
-
-    // Reset odometry to the starting pose of the trajectory.
-    m_drive.resetOdometry(trajectory.getInitialPose());
-    m_drive.setIdleMode(IdleMode.kBrake);
-    // Run path following command, then stop at the end. */
-    
     //FOR AUTONAV CHALLENGE
-
     //return slalom.andThen(() -> m_drive.tankDrive(0, 0));
 
     //FOR GALACTIC CHALLENGE
-    
-    return new SequentialCommandGroup(
+    int path = m_lime.determinePath();
+    m_drive.resetOdometry(pathsTrajs[path].getInitialPose());
+    return paths[path].deadlineWith(
       new InstantCommand(()->m_intake.toggleSol(m_intake.intakeSOL)),
       new RunCommand(()->m_intake.runIntake(-1), m_intake)
     );
-  }
-
-  public RamseteCommand genCommand(String path){
-    String trajectoryJSON = path;
-
-      Trajectory trajectory = new Trajectory();
-      try {
-        Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-        trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-      } catch (IOException ex) {
-        DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-      }
-
-      return new RamseteCommand(
-        trajectory,
-          m_drive::getPose,
-          new RamseteController(Constants.kRamseteB, Constants.kRamseteZeta),
-          new SimpleMotorFeedforward(Constants.ksVolts,
-                                    Constants.kvVoltSecondsPerMeter,
-                                    Constants.kaVoltSecondsSquaredPerMeter),
-          m_drive.m_kinematics,
-          m_drive::getWheelSpeeds,
-          new PIDController(Constants.kPDriveVel, 0, 0),
-          new PIDController(Constants.kPDriveVel, 0, 0),
-          // RamseteCommand passes volts to the callback
-          m_drive::tankDriveVolts,
-          m_drive
-      );
   }
 }
