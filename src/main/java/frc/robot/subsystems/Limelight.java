@@ -26,17 +26,43 @@ public class Limelight extends SubsystemBase {
   public NetworkTableEntry pipeline = Constants.pipeline;
   public NetworkTableEntry stream = Constants.stream;
 
+  
+
+  
+ 
+
   //Servo mover = new Servo(Constants.SERVO_MOTOR);
   
   double validTarget = Constants.tv.getDouble(0.0);
 
   public Servo m_servo = new Servo(2);
 
+  public Limelight(){
+      m_servo.setAngle(5);
+  }
+
+
+
+
   //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
   public void periodic() {
+
+    NetworkTable ballTable = NetworkTableInstance.getDefault().getTable("Balls");
+
+    NetworkTableEntry positions = ballTable.getEntry("x");
+      
+      double[] xPos = positions.getDoubleArray(new double[0]);
+
     SmartDashboard.putNumber("'Distance'", getAngle());
     SmartDashboard.putNumber("TY", Constants.ty.getDouble(0.0));
+
+    getDistance();
+
+    //System.out.println(m_servo.getAngle());
+
+    //if(xPos.length > 1)
+    //System.out.println(xPos[1] - xPos[0]);
     //changeAngle(.5);
   }
 
@@ -52,6 +78,8 @@ public class Limelight extends SubsystemBase {
     camMode.setNumber(1); // sets camera to driving mode
     pipeline.setNumber(0);
   }
+
+  
 
   /**
    * Forces on light
@@ -106,6 +134,8 @@ public class Limelight extends SubsystemBase {
     return Constants.ty.getDouble(0.0);
   }
 
+  
+
   /*
     PATH IDS: 
     0: "paths/GalacticBlueA.wpilib.json",
@@ -114,17 +144,35 @@ public class Limelight extends SubsystemBase {
     3: "paths/GalacticRedB.wpilib.json"
   */
   public int determinePath(){
-    NetworkTable ballTable = NetworkTableInstance.getDefault().getTable("Balls");
+   /* NetworkTable ballTable = NetworkTableInstance.getDefault().getTable("Balls");
     NetworkTableEntry positions = ballTable.getEntry("x");
     
-    double[] xPos = positions.getDoubleArray(new double[0]);
+    double[] xPos = positions.getDoubleArray(new double[0]); 
 
     if(xPos[1] > xPos[0]){
       return 2;
     }else{
       return 0;
     }
+    */
+    return 2;
   
+  }
+
+  public double getDistance(){
+    double angle = m_servo.getAngle(); 
+    System.out.println("servo angle:"+ angle);
+    angle += Constants.ty.getDouble(0.0);
+    System.out.println("servo angle and other angle:" + angle);
+    angle = Math.toRadians(angle);
+    System.out.println("with radians: " + angle);
+    double distToTarget = (98.75 - 19)  / Math.tan(angle);
+    System.out.println("distToTarget" + distToTarget); 
+    return distToTarget;
+  }
+
+  public void setServoDefault(){
+    m_servo.setAngle(0);
   }
   
 }
