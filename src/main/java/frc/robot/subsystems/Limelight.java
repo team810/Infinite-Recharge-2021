@@ -27,6 +27,11 @@ public class Limelight extends SubsystemBase {
   public NetworkTableEntry pipeline = Constants.pipeline;
   public NetworkTableEntry stream = Constants.stream;
 
+  
+
+  
+ 
+
   //Servo mover = new Servo(Constants.SERVO_MOTOR);
   
   double validTarget = Constants.tv.getDouble(0.0);
@@ -35,12 +40,21 @@ public class Limelight extends SubsystemBase {
 
   private final AnalogInput ultrasonic = new AnalogInput(2); 
 
+  private final int OFFSET = 5;
+
   //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Distance (Ultrasonic)", getDistanceUltrasonic());
     SmartDashboard.putNumber("Distance (Limelight)", getDistance());
     SmartDashboard.putNumber("TY", Constants.ty.getDouble(0.0));
+
+    getDistance();
+
+    //System.out.println(m_servo.getAngle());
+
+    //if(xPos.length > 1)
+    //System.out.println(xPos[1] - xPos[0]);
     //changeAngle(.5);
   }
 
@@ -56,6 +70,8 @@ public class Limelight extends SubsystemBase {
     camMode.setNumber(1); // sets camera to driving mode
     pipeline.setNumber(0);
   }
+
+  
 
   /**
    * Forces on light
@@ -120,7 +136,7 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getDistance(){
-    double angle = m_servo.getAngle() + Constants.ty.getDouble(0.0); 
+    double angle = m_servo.getAngle() + Constants.ty.getDouble(0.0) - OFFSET; 
     double distToTarget = (98.75 - 19)  / Math.tan(Math.toRadians(angle));
     return distToTarget;
   }
@@ -132,17 +148,24 @@ public class Limelight extends SubsystemBase {
     3: "paths/GalacticRedB.wpilib.json"
   */
   public int determinePath(){
-    NetworkTable ballTable = NetworkTableInstance.getDefault().getTable("Balls");
+   /* NetworkTable ballTable = NetworkTableInstance.getDefault().getTable("Balls");
     NetworkTableEntry positions = ballTable.getEntry("x");
     
-    double[] xPos = positions.getDoubleArray(new double[0]);
+    double[] xPos = positions.getDoubleArray(new double[0]); 
 
     if(xPos[1] > xPos[0]){
       return 2;
     }else{
       return 0;
     }
+    */
+    return 2;
   
+  }
+
+
+  public void setServoDefault(){
+    m_servo.setAngle(0);
   }
   
 }

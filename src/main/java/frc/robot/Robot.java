@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.robot.commands.Bounce;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Limelight;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -34,6 +35,8 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  private Limelight l;
+
   String[] bouncePaths = {"paths/Bounce1.wpilib.json", "paths/Bounce2.wpilib.json",
                           "paths/Bounce3.wpilib.json", "paths/Bounce4.wpilib.json"};
   RamseteCommand[] bouncePs = new RamseteCommand[4];
@@ -43,6 +46,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    
+
+    
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
