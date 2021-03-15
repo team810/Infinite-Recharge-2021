@@ -10,9 +10,10 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -32,10 +33,13 @@ public class Limelight extends SubsystemBase {
 
   public Servo m_servo = new Servo(2);
 
+  private final AnalogInput ultrasonic = new AnalogInput(2); 
+
   //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("'Distance'", getAngle());
+    SmartDashboard.putNumber("Distance (Ultrasonic)", getDistanceUltrasonic());
+    SmartDashboard.putNumber("Distance (Limelight)", getDistance());
     SmartDashboard.putNumber("TY", Constants.ty.getDouble(0.0));
     //changeAngle(.5);
   }
@@ -106,6 +110,20 @@ public class Limelight extends SubsystemBase {
     return Constants.ty.getDouble(0.0);
   }
 
+  public double getDistanceUltrasonic(){
+    /*
+      Ultrasonic.getValue() returns voltage.
+      Multiplying with .125 returns in CENTIMETERS
+      Converting from cm to inches is just dividing by 2.54 
+    */
+    return (ultrasonic.getValue() * 0.125) / 2.54;
+  }
+
+  public double getDistance(){
+    double angle = m_servo.getAngle() + Constants.ty.getDouble(0.0); 
+    double distToTarget = (98.75 - 19)  / Math.tan(Math.toRadians(angle));
+    return distToTarget;
+  }
   /*
     PATH IDS: 
     0: "paths/GalacticBlueA.wpilib.json",
