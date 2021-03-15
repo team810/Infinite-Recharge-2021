@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterSystem;
 
 public class shoot extends CommandBase {
@@ -26,11 +27,13 @@ public class shoot extends CommandBase {
   ShuffleboardTab tab;
   private BooleanSupplier cShoot = ()->false;
   private NetworkTableEntry setSpeed, setP, setI, setD, setF, speed, canShoot;
+  private Limelight m_lime;
 
-  public shoot(ShooterSystem m_shoot) {
+  public shoot(ShooterSystem m_shoot, Limelight m_lime) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.m_shoot = m_shoot;
     m_pidController = m_shoot.getShooter().getPIDController();
+    this.m_lime = m_lime;
     addRequirements(m_shoot);
     smartdashboardInit();
   }
@@ -72,7 +75,7 @@ public class shoot extends CommandBase {
     m_pidController.setOutputRange(kMinOutput, kMaxOutput);
     
     double setPoint, processVariable;
-
+    //setSpeed.setNumber(m_lime.getShooterSpeed());
     setPoint = setSpeed.getDouble(5000);
     m_pidController.setReference(setPoint, ControlType.kVelocity);
     processVariable = m_shoot.getShooter().getEncoder().getVelocity();

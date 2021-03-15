@@ -47,7 +47,7 @@ public class Limelight extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Distance (Ultrasonic)", getDistanceUltrasonic());
     SmartDashboard.putNumber("Distance (Limelight)", getDistance());
-    SmartDashboard.putNumber("TY", Constants.ty.getDouble(0.0));
+    SmartDashboard.putNumber("Servo Angle", m_servo.getAngle());
 
     getDistance();
 
@@ -168,4 +168,7 @@ public class Limelight extends SubsystemBase {
     m_servo.setAngle(0);
   }
   
+  public double getShooterSpeed(){
+    return getDistanceUltrasonic() + 3000; //Set equation here
+  }
 }

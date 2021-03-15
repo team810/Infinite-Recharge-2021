@@ -61,7 +61,7 @@ public class RobotContainer {
 
   private void configureButtonBindings() {
     shootRun = new JoystickButton(left, 1);
-      shootRun.whileHeld(new shoot(m_shoot));
+      shootRun.whileHeld(new shoot(m_shoot, m_lime));
     intakeOut = new JoystickButton(left, 2);
       intakeOut.whenPressed(new InstantCommand(()->m_intake.toggleSol(m_intake.intakeSOL), m_intake));
     switchShoot = new JoystickButton(left, 3);
@@ -79,11 +79,11 @@ public class RobotContainer {
     servoTarget = new JoystickButton(left, 14);
       servoTarget.whenPressed(
         new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(100)), new InstantCommand(()->m_lime.pipeline.setNumber(0)))
-      );
+    );
     servoBall = new JoystickButton(left, 15);
       servoBall.whenPressed(
         new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(0)), new InstantCommand(()->m_lime.pipeline.setNumber(1)))
-      );
+    );
   }
 
   public Command getAutonomousCommand() {
