@@ -42,7 +42,7 @@ public class RobotContainer {
   private final Joystick left = new Joystick(0);
   private final Joystick right = new Joystick(1);
   
-  private JoystickButton intakeOut, intakeRun, feedRun, switchShoot, shootRun, turnTarget, reset, resetE, servoTarget, servoBall;
+  private JoystickButton intakeOut, intakeRun, feedRun, feedRunAuto, switchShoot, shootRun, turnTarget, reset, resetE, servoTarget, servoBall;
 
   public RamseteCommand[] paths = new RamseteCommand[4];
   public Trajectory[] pathsTrajs = new Trajectory[4];
@@ -70,6 +70,8 @@ public class RobotContainer {
       intakeRun.whileHeld(new StartEndCommand(() -> m_intake.runIntake(-.5), ()-> m_intake.runIntake(0), m_intake));
     feedRun = new JoystickButton(right, 1);
       feedRun.whileHeld(new StartEndCommand(() -> m_feed.runFeed(1), ()-> m_feed.runFeed(0), m_feed));
+    feedRunAuto = new JoystickButton(right, 3);
+      feedRunAuto.whileHeld(new StartEndCommand(() -> m_feed.autoShoot(1), ()-> m_feed.autoShoot(0), m_feed));
     turnTarget = new JoystickButton(right, 2);
       turnTarget.whileHeld(new TurnToTarget(m_drive, m_lime));
     reset = new JoystickButton(right, 14);
