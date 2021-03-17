@@ -46,10 +46,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
-    
-
-    
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
@@ -72,6 +68,8 @@ public class Robot extends TimedRobot {
 
     Bounce bounce = new Bounce(bouncePs[0], bouncePs[1], bouncePs[2], bouncePs[3]);
     m_robotContainer.paths.put("Bounce", bounce);
+
+    m_robotContainer.initSendable();
   }
 
   /**

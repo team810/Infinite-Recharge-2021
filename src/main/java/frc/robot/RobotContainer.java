@@ -7,6 +7,8 @@ package frc.robot;
 import java.util.HashMap;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -41,6 +43,8 @@ public class RobotContainer {
                                 "paths/GalacticRedB.wpilib.json", "paths/BarrelRoll.wpilib.json", "paths/Slalom.wpilib.json",
                                 "paths/Bounce1.wpilib.json", "paths/Bounce2.wpilib.json", "paths/Bounce3.wpilib.json", "paths/Bounce4.wpilib.json"};
 
+  public SendableChooser<String> m_chooser = new SendableChooser<String>();
+
   public RobotContainer() {
     configureButtonBindings();
     m_drive.setDefaultCommand(
@@ -49,6 +53,13 @@ public class RobotContainer {
     ); 
   }
 
+  public void initSendable(){
+    for(String key : paths.keySet()){
+      m_chooser.addOption(key, key);
+    }
+
+    SmartDashboard.putData("Chooser", m_chooser);
+  }
   private void configureButtonBindings() {
     shootRun = new JoystickButton(left, 1);
       shootRun.whileHeld(new shoot(m_shoot, m_lime));
@@ -79,11 +90,24 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    String path = "Bounce";
-    // Reset odometry to starting pose of trajectory.
-    m_drive.resetOdometry(pathsTrajs.get(path).getInitialPose());
+    Command m_auto = paths.get(m_chooser.getSelected());
+    Trajectory m_traj = pathsTrajs.get(m_chooser.getSelected());
 
-    // Run path following command, then stop at the end.
-    return paths.get(path).andThen(() -> m_drive.tankDriveVolts(0, 0));
+    m_drive.resetOdometry(m_traj.getInitialPose());
+
+    // AUTONAV
+    //return paths.get(m_auto).andThen(() -> m_drive.tankDriveVolts(0, 0));
+
+    //GALACTIC SEARCH
+    return m_auto.deadlineWith(
+      new InstantCommand(
+        ()->m_intake.toggleSol()
+      ), 
+      new StartEndCommand(
+        ()->m_intake.runIntake(-1),
+        ()-> m_intake.runIntake(0),
+        m_intake
+      )
+    );
   }
 }
