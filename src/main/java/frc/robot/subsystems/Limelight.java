@@ -41,6 +41,7 @@ public class Limelight extends SubsystemBase {
   private final AnalogInput ultrasonic = new AnalogInput(2); 
 
   private final int OFFSET = 5;
+  private double angle = 45;
 
   //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
@@ -50,12 +51,7 @@ public class Limelight extends SubsystemBase {
     SmartDashboard.putNumber("Servo Angle", m_servo.getAngle());
 
     getDistance();
-
-    //System.out.println(m_servo.getAngle());
-
-    //if(xPos.length > 1)
-    //System.out.println(xPos[1] - xPos[0]);
-    //changeAngle(.5);
+    //m_servo.set(value);
   }
 
   /**
@@ -136,8 +132,9 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getDistance(){
-    double angle = m_servo.getAngle() + Constants.ty.getDouble(0.0) - OFFSET; 
-    double distToTarget = (98.75 - 19)  / Math.tan(Math.toRadians(angle));
+    double a = this.angle + Constants.ty.getDouble(0.0); 
+    System.out.println(a);
+    double distToTarget = (98.75 - 19) / Math.tan(Math.toRadians(a));
     return distToTarget;
   }
   /*
@@ -170,5 +167,9 @@ public class Limelight extends SubsystemBase {
   
   public double getShooterSpeed(){
     return getDistanceUltrasonic() + 3000; //Set equation here
+  }
+
+  public void setAngle(double a){
+    angle = a;
   }
 }

@@ -4,26 +4,16 @@
 
 package frc.robot;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.HashMap;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.controller.RamseteController;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.commands.Bounce;
 import frc.robot.commands.TurnToTarget;
 import frc.robot.commands.shoot;
 import frc.robot.subsystems.Drivetrain;
@@ -44,12 +34,12 @@ public class RobotContainer {
   
   private JoystickButton intakeOut, intakeRun, feedRun, feedRunAuto, switchShoot, shootRun, turnTarget, reset, resetE, servoTarget, servoBall;
 
-  public RamseteCommand[] paths = new RamseteCommand[4];
-  public Trajectory[] pathsTrajs = new Trajectory[4];
-  public String[] trajNames = {"paths/GalacticBlueA.wpilib.json",
-                          "paths/GalacticBlueB.wpilib.json", "paths/GalacticRedA.wpilib.json", "paths/GalacticRedB.wpilib.json"};
-  public Bounce bounce;
-  public RamseteCommand slalom, barrelRoll;
+  public HashMap<String, Trajectory> pathsTrajs = new HashMap<String, Trajectory>();
+  public HashMap<String, Command> paths = new HashMap<String, Command>();
+
+  public String[] trajNames = {"paths/GalacticBlueA.wpilib.json", "paths/GalacticBlueB.wpilib.json", "paths/GalacticRedA.wpilib.json", 
+                                "paths/GalacticRedB.wpilib.json", "paths/BarrelRoll.wpilib.json", "paths/Slalom.wpilib.json",
+                                "paths/Bounce1.wpilib.json", "paths/Bounce2.wpilib.json", "paths/Bounce3.wpilib.json", "paths/Bounce4.wpilib.json"};
 
   public RobotContainer() {
     configureButtonBindings();
@@ -80,24 +70,20 @@ public class RobotContainer {
       resetE.whenPressed(new InstantCommand(()-> m_drive.resetEncoders(), m_drive));
     servoTarget = new JoystickButton(left, 14);
       servoTarget.whenPressed(
-        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(100)), new InstantCommand(()->m_lime.pipeline.setNumber(0)))
+        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(100)), new InstantCommand(()->m_lime.pipeline.setNumber(0)), new InstantCommand(()->m_lime.setAngle(45)))
     );
     servoBall = new JoystickButton(left, 15);
       servoBall.whenPressed(
-        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(0)), new InstantCommand(()->m_lime.pipeline.setNumber(1)))
+        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(0)), new InstantCommand(()->m_lime.pipeline.setNumber(1)), new InstantCommand(()->m_lime.setAngle(0)))
     );
   }
 
   public Command getAutonomousCommand() {
-    //FOR AUTONAV CHALLENGE
-    //return slalom.andThen(() -> m_drive.tankDrive(0, 0));
+    String path = "Bounce";
+    // Reset odometry to starting pose of trajectory.
+    m_drive.resetOdometry(pathsTrajs.get(path).getInitialPose());
 
-    //FOR GALACTIC CHALLENGE
-    int path = m_lime.determinePath();
-    m_drive.resetOdometry(pathsTrajs[path].getInitialPose());
-    return paths[path].deadlineWith(
-      new InstantCommand(()->m_intake.toggleSol(m_intake.intakeSOL)),
-      new RunCommand(()->m_intake.runIntake(-1), m_intake)
-    );
+    // Run path following command, then stop at the end.
+    return paths.get(path).andThen(() -> m_drive.tankDriveVolts(0, 0));
   }
 }
