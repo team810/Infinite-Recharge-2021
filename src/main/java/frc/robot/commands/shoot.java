@@ -23,7 +23,7 @@ public class shoot extends CommandBase {
   CANPIDController m_pidController;
   double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM,
     maxVel, maxAcc;
-  int smartMotionSlot;
+  int smartMotionSlot, threshold;
   ShuffleboardTab tab;
   private BooleanSupplier cShoot = ()->false;
   private NetworkTableEntry setSpeed, setP, setI, setD, setF, speed, canShoot;
@@ -41,21 +41,22 @@ public class shoot extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    kIz = 0; 
+    kIz = 100; 
     kMaxOutput = 1; 
     kMinOutput = -1;
     maxRPM = 5700;
+    threshold = 50;
 
     // Smart Motion Coefficients
-    maxVel = 5600; // rpm
-    maxAcc = 2000;
+    maxVel = 5700; // rpm
+    maxAcc = 5700;
 
     // set PID coefficients
     smartMotionSlot = 0;
     m_pidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
     m_pidController.setSmartMotionMinOutputVelocity(0, smartMotionSlot);
     m_pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
-    m_pidController.setSmartMotionAllowedClosedLoopError(5, smartMotionSlot);
+    m_pidController.setSmartMotionAllowedClosedLoopError(2, smartMotionSlot);
 
     
   }
@@ -63,10 +64,10 @@ public class shoot extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    kP = setP.getDouble(Constants.kPShooter); 
-    kI = setI.getDouble(Constants.kIShooter);
-    kD = setD.getDouble(Constants.kDShooter); 
-    kFF = setF.getDouble(Constants.kFShooter);
+    kP = setP.getDouble(0); 
+    kI = setI.getDouble(0);
+    kD = setD.getDouble(0); 
+    kFF = setF.getDouble(0);
     m_pidController.setP(kP);
     m_pidController.setI(kI);
     m_pidController.setD(kD);
@@ -81,7 +82,7 @@ public class shoot extends CommandBase {
     processVariable = m_shoot.getShooter().getEncoder().getVelocity();
     //SmartDashboard.putNumber("Shooter Speed", processVariable);
     speed.setDouble(processVariable);
-    if(processVariable < (setPoint + 100) && processVariable > (setPoint - 100)){
+    if(Math.abs(setPoint - processVariable) < threshold){
       cShoot = ()-> true;
     }else{
       cShoot = ()-> false;
