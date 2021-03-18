@@ -50,6 +50,8 @@ public class TurnToTarget extends CommandBase {
       steer = (kP * error) + minThreshold;
     }
     str.setNumber(steer);
+
+    
     m_drive.arcadeDrive(0, steer);
 
 

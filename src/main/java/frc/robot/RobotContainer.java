@@ -80,8 +80,8 @@ public class RobotContainer {
       resetE.whenPressed(new InstantCommand(()-> m_drive.resetEncoders(), m_drive));
     servoTarget = new JoystickButton(left, 14);
       servoTarget.whenPressed(
-        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(100)), new InstantCommand(()->m_lime.pipeline.setNumber(0)))
-    );
+        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(130)), new InstantCommand(()->m_lime.pipeline.setNumber(0)), new InstantCommand(() -> m_lime.setAngle(45))));
+    
     servoBall = new JoystickButton(left, 15);
       servoBall.whenPressed(
         new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(0)), new InstantCommand(()->m_lime.pipeline.setNumber(1)))

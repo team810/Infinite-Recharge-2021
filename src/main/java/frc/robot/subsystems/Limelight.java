@@ -10,10 +10,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -29,6 +28,7 @@ public class Limelight extends SubsystemBase {
 
   
 
+  private double angle = 45;
   
  
 
@@ -38,16 +38,25 @@ public class Limelight extends SubsystemBase {
 
   public Servo m_servo = new Servo(2);
 
-  private final AnalogInput ultrasonic = new AnalogInput(2); 
+  public Limelight(){
+      m_servo.setAngle(5);
+  }
 
-  private final int OFFSET = 5;
+
+
 
   //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Distance (Ultrasonic)", getDistanceUltrasonic());
-    SmartDashboard.putNumber("Distance (Limelight)", getDistance());
-    SmartDashboard.putNumber("Servo Angle", m_servo.getAngle());
+
+    NetworkTable ballTable = NetworkTableInstance.getDefault().getTable("Balls");
+
+    NetworkTableEntry positions = ballTable.getEntry("x");
+      
+      double[] xPos = positions.getDoubleArray(new double[0]);
+
+    SmartDashboard.putNumber("'Distance'", getAngle());
+    SmartDashboard.putNumber("TY", Constants.ty.getDouble(0.0));
 
     getDistance();
 
@@ -126,20 +135,8 @@ public class Limelight extends SubsystemBase {
     return Constants.ty.getDouble(0.0);
   }
 
-  public double getDistanceUltrasonic(){
-    /*
-      Ultrasonic.getValue() returns voltage.
-      Multiplying with .125 returns in CENTIMETERS
-      Converting from cm to inches is just dividing by 2.54 
-    */
-    return (ultrasonic.getValue() * 0.125) / 2.54;
-  }
+  
 
-  public double getDistance(){
-    double angle = m_servo.getAngle() + Constants.ty.getDouble(0.0) - OFFSET; 
-    double distToTarget = (98.75 - 19)  / Math.tan(Math.toRadians(angle));
-    return distToTarget;
-  }
   /*
     PATH IDS: 
     0: "paths/GalacticBlueA.wpilib.json",
@@ -163,12 +160,26 @@ public class Limelight extends SubsystemBase {
   
   }
 
+  /* For Tuesday
+  6.42 feet to calibrate
+  should get 8 degrees 
+  */
+
+  public double getDistance(){
+
+    double a = this.angle + Constants.ty.getDouble(0.0);
+ 
+    double distToTarget = (98.75 - 19) / Math.tan(Math.toRadians(a));
+    System.out.println(distToTarget);
+    return distToTarget;
+  }
 
   public void setServoDefault(){
     m_servo.setAngle(0);
   }
-  
-  public double getShooterSpeed(){
-    return getDistanceUltrasonic() + 3000; //Set equation here
+
+  public void setAngle(double a){
+    angle = a;
   }
+  
 }
