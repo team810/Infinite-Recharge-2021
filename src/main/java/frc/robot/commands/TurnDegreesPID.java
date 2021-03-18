@@ -16,7 +16,7 @@ public class TurnDegreesPID extends PIDCommand {
   public TurnDegreesPID(Drivetrain m_drive, double degrees) {
     super(
         // The controller that the command will use
-        new PIDController(0, 0, 0),
+        new PIDController(0.004, 0, 0.001),
         // This should return the measurement
         () -> m_drive.getHeading(),
         // This should return the setpoint (can also be a constant)

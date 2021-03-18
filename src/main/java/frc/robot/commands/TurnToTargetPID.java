@@ -17,7 +17,7 @@ public class TurnToTargetPID extends PIDCommand {
   public TurnToTargetPID(Drivetrain m_drive) {
     super(
         // The controller that the command will use
-        new PIDController(0, 0, 0),
+        new PIDController(0.004, 0, 0.001),
         // This should return the measurement
         () -> Constants.tx.getDouble(0),
         // This should return the setpoint (can also be a constant)
