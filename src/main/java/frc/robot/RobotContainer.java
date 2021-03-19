@@ -4,21 +4,14 @@
 
 package frc.robot;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.util.HashMap;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.controller.RamseteController;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
@@ -45,12 +38,14 @@ public class RobotContainer {
   
   private JoystickButton intakeOut, intakeRun, feedRun, feedRunAuto, switchShoot, shootRun, turnTarget, reset, resetE, servoTarget, servoBall, turnAround;
 
-  public RamseteCommand[] paths = new RamseteCommand[4];
-  public Trajectory[] pathsTrajs = new Trajectory[4];
-  public String[] trajNames = {"paths/GalacticBlueA.wpilib.json",
-                          "paths/GalacticBlueB.wpilib.json", "paths/GalacticRedA.wpilib.json", "paths/GalacticRedB.wpilib.json"};
-  public Bounce bounce;
-  public RamseteCommand slalom, barrelRoll;
+  public HashMap<String, Trajectory> pathsTrajs = new HashMap<String, Trajectory>();
+  public HashMap<String, Command> paths = new HashMap<String, Command>();
+
+  public String[] trajNames = {"paths/GalacticBlueA.wpilib.json", "paths/GalacticBlueB.wpilib.json", "paths/GalacticRedA.wpilib.json", 
+                                "paths/GalacticRedB.wpilib.json", "paths/BarrelRoll.wpilib.json", "paths/Slalom.wpilib.json",
+                                "paths/Bounce1.wpilib.json", "paths/Bounce2.wpilib.json", "paths/Bounce3.wpilib.json", "paths/Bounce4.wpilib.json"};
+
+  public SendableChooser<String> m_chooser = new SendableChooser<String>();
 
   public RobotContainer() {
     configureButtonBindings();
@@ -60,6 +55,13 @@ public class RobotContainer {
     ); 
   }
 
+  public void initSendable(){
+    for(String key : paths.keySet()){
+      m_chooser.addOption(key, key);
+    }
+
+    SmartDashboard.putData("Chooser", m_chooser);
+  }
   private void configureButtonBindings() {
     shootRun = new JoystickButton(left, 1);
       shootRun.whileHeld(new shoot(m_shoot, m_lime));
@@ -81,26 +83,35 @@ public class RobotContainer {
       resetE.whenPressed(new InstantCommand(()-> m_drive.resetEncoders(), m_drive));
     servoTarget = new JoystickButton(left, 14);
       servoTarget.whenPressed(
-        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(130)), new InstantCommand(()->m_lime.pipeline.setNumber(0)), new InstantCommand(() -> m_lime.setAngle(45))));
-    
+        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(100)), new InstantCommand(()->m_lime.pipeline.setNumber(0)), new InstantCommand(()->m_lime.setAngle(45)))
+    );
     servoBall = new JoystickButton(left, 15);
       servoBall.whenPressed(
-        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(0)), new InstantCommand(()->m_lime.pipeline.setNumber(1)))
+        new SequentialCommandGroup(new InstantCommand(()->m_lime.m_servo.setAngle(0)), new InstantCommand(()->m_lime.pipeline.setNumber(1)), new InstantCommand(()->m_lime.setAngle(0)))
     );
     turnAround = new JoystickButton(right, 16);
       turnAround.whenPressed(new TurnDegreesPID(m_drive, 180));
   }
 
   public Command getAutonomousCommand() {
-    //FOR AUTONAV CHALLENGE
-    //return slalom.andThen(() -> m_drive.tankDrive(0, 0));
+    Command m_auto = paths.get(m_chooser.getSelected());
+    Trajectory m_traj = pathsTrajs.get(m_chooser.getSelected());
 
-    //FOR GALACTIC CHALLENGE
-    int path = m_lime.determinePath();
-    m_drive.resetOdometry(pathsTrajs[path].getInitialPose());
-    return paths[path].deadlineWith(
-      new InstantCommand(()->m_intake.toggleSol(m_intake.intakeSOL)),
-      new RunCommand(()->m_intake.runIntake(-1), m_intake)
+    m_drive.resetOdometry(m_traj.getInitialPose());
+
+    // AUTONAV
+    //return paths.get(m_auto).andThen(() -> m_drive.tankDriveVolts(0, 0));
+
+    //GALACTIC SEARCH
+    return m_auto.deadlineWith(
+      new InstantCommand(
+        ()->m_intake.toggleSol()
+      ), 
+      new StartEndCommand(
+        ()->m_intake.runIntake(-1),
+        ()-> m_intake.runIntake(0),
+        m_intake
+      )
     );
   }
 }

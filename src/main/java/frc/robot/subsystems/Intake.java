@@ -38,4 +38,12 @@ public class Intake extends SubsystemBase {
       d.set(Value.kForward);
     }
   }
+
+  public void toggleSol(){
+    if(intakeSOL.get() == Value.kForward){
+      intakeSOL.set(Value.kReverse);
+    }else{
+      intakeSOL.set(Value.kForward);
+    }
+  }
 }

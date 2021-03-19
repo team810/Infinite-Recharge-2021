@@ -26,24 +26,11 @@ public class Limelight extends SubsystemBase {
   public NetworkTableEntry pipeline = Constants.pipeline;
   public NetworkTableEntry stream = Constants.stream;
 
-  
-
-  private double angle = 45;
-  
- 
-
-  //Servo mover = new Servo(Constants.SERVO_MOTOR);
-  
   double validTarget = Constants.tv.getDouble(0.0);
 
   public Servo m_servo = new Servo(2);
-
-  public Limelight(){
-      m_servo.setAngle(5);
-  }
-
-
-
+  private final int OFFSET = 5;
+  private double angle = 30;
 
   //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
@@ -59,12 +46,7 @@ public class Limelight extends SubsystemBase {
     SmartDashboard.putNumber("TY", Constants.ty.getDouble(0.0));
 
     getDistance();
-
-    //System.out.println(m_servo.getAngle());
-
-    //if(xPos.length > 1)
-    //System.out.println(xPos[1] - xPos[0]);
-    //changeAngle(.5);
+    m_servo.set(.52); 
   }
 
   /**
@@ -137,6 +119,12 @@ public class Limelight extends SubsystemBase {
 
   
 
+  public double getDistance(){
+    double a = this.angle + Constants.ty.getDouble(0.0); 
+    System.out.println(a);
+    double distToTarget = (98.75 - 19) / Math.tan(Math.toRadians(a));
+    return distToTarget;
+  }
   /*
     PATH IDS: 
     0: "paths/GalacticBlueA.wpilib.json",
@@ -164,15 +152,6 @@ public class Limelight extends SubsystemBase {
   6.42 feet to calibrate
   should get 8 degrees 
   */
-
-  public double getDistance(){
-
-    double a = this.angle + Constants.ty.getDouble(0.0);
- 
-    double distToTarget = (98.75 - 19) / Math.tan(Math.toRadians(a));
-    System.out.println(distToTarget);
-    return distToTarget;
-  }
 
   public void setServoDefault(){
     m_servo.setAngle(0);

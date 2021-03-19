@@ -46,30 +46,30 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
-    
-
-    
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     DriverStation.getInstance().silenceJoystickConnectionWarning(true);
     
     String[] trajNames = m_robotContainer.trajNames;
-    RamseteCommand[] paths = m_robotContainer.paths;
 
-    for(int i = 0; i < trajNames.length; i++){
-      m_robotContainer.pathsTrajs[i] = genTraj("paths/GalacticBlueA.wpilib.json");
-      paths[i] = genCommand(m_robotContainer.pathsTrajs[i]);
+    //Make all trajectories and paths except bounce
+    for(int i = 0; i < trajNames.length - 4; i++){
+      Trajectory t = genTraj(trajNames[i]);
+      m_robotContainer.pathsTrajs.put(trajNames[i], t);
+      m_robotContainer.paths.put(trajNames[i], genCommand(t));
     }
-    m_robotContainer.paths = paths;
-    
-    for(int i = 0; i < bouncePaths.length; i++){
-      bouncePs[i] = genCommand(genTraj(bouncePaths[i]));
+
+    //Bounce path construction
+    m_robotContainer.pathsTrajs.put("Bounce", genTraj(trajNames[6]));
+    for(int i = trajNames.length - 4; i < trajNames.length; i++){
+      bouncePs[i - (trajNames.length - 4)] = genCommand(genTraj(trajNames[i]));
     }
-    m_robotContainer.bounce = new Bounce(bouncePs[0], bouncePs[1], bouncePs[2], bouncePs[3]);
-    m_robotContainer.barrelRoll = genCommand(genTraj("paths/BarrelRoll.wpilib.json"));
-    m_robotContainer.slalom = genCommand(genTraj("paths/Slalom.wpilib.json"));
+
+    Bounce bounce = new Bounce(bouncePs[0], bouncePs[1], bouncePs[2], bouncePs[3]);
+    m_robotContainer.paths.put("Bounce", bounce);
+
+    m_robotContainer.initSendable();
   }
 
   /**
