@@ -41,7 +41,7 @@ public class Limelight extends SubsystemBase {
   private final AnalogInput ultrasonic = new AnalogInput(2); 
 
   private final int OFFSET = 5;
-  private double angle = 45;
+  private double angle = 30;
 
   //public Ultrasonic ultrasonic = new Ultrasonic(1);
   @Override
@@ -51,7 +51,7 @@ public class Limelight extends SubsystemBase {
     SmartDashboard.putNumber("Servo Angle", m_servo.getAngle());
 
     getDistance();
-    //m_servo.set(value); 
+    m_servo.set(.52); 
   }
 
   /**
